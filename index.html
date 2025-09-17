@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Öğrenci Takip Sistemi</title>
+    <style>
+    /* Yeni Renk Paleti Değişkenleri */
+    :root {
+        --dark-blue: #0d1b2a;
+        --light-blue: #415a77;
+        --accent-pink: #e01e5a;
+        --accent-cyan: #00bfff;
+        --accent-orange: #ff8c00;
+        --light-text: #e0e1dd;
+    }
+
+    /* Genel Stiller */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--dark-blue);
+        color: var(--light-text);
+    }
+
+    /* Giriş Ekranı Stilleri */
+    .login-container { display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .login-box { background: var(--light-blue); padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 350px; }
+    .login-box h1 { text-align: center; margin-bottom: 20px; color: white; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #555; border-radius: 4px; background-color: var(--dark-blue); color: var(--light-text); }
+    .login-box button { width: 100%; padding: 12px; background-color: var(--accent-pink); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+    .login-box button:hover { background-color: #c51a50; }
+
+    /* Ana Uygulama Arayüzü */
+    .main-app { display: none; height: 100vh; }
+    .sidebar { width: 220px; background-color: var(--dark-blue); color: var(--light-text); padding-top: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--light-blue); }
+    .sidebar h2 { text-align: center; padding: 0 10px 20px 10px; font-size: 1.2em; border-bottom: 1px solid var(--light-blue); }
+    .sidebar-menu { list-style: none; width: 100%; }
+    .sidebar-menu li a { display: block; padding: 15px 20px; color: var(--light-text); text-decoration: none; border-bottom: 1px solid var(--light-blue); transition: background-color 0.2s; }
+    .sidebar-menu li a:hover { background-color: var(--light-blue); }
+    .sidebar-menu .logout { margin-top: auto; }
+
+    /* YENİ: Alt Menü Stilleri */
+    .has-submenu > a { display: flex; justify-content: space-between; align-items: center; }
+    .has-submenu > a::after { content: '▼'; font-size: 0.7em; transition: transform 0.3s; }
+    .has-submenu.active > a::after { transform: rotate(180deg); }
+    .submenu { list-style: none; display: none; background-color: #1c2b3a; }
+    .submenu.active { display: block; }
+    .submenu li a { padding-left: 40px; border-color: #2c3e50; }
+
+    .content { flex-grow: 1; padding: 30px; background-color: #1a2431; overflow-y: auto; }
+    .page-view { display: none; }
+    .page-view h2 { margin-bottom: 20px; color: white; border-bottom: 2px solid var(--accent-pink); padding-bottom: 10px; }
+    
+    /* Form Elemanları */
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #555; border-radius: 4px; box-sizing: border-box; background-color: var(--light-blue); color: var(--light-text); }
+    button { padding: 10px 15px; background-color: var(--accent-pink); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+    button:hover { background-color: #c51a50; }
+    .secondary-button { background-color: var(--accent-orange); }
+    .secondary-button:hover { background-color: #e07b00; }
+
+    /* Modal Stilleri */
+    .modal { display: none; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; }
+    .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--dark-blue); border: 1px solid var(--light-blue); padding: 30px; border-radius: 8px; width: 90%; max-width: 700px; z-index: 1001; max-height: 80vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; color: var(--light-text); font-size: 28px; cursor: pointer; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #555; border-radius: 4px; background-color: var(--light-blue); color: var(--light-text); }
+/* Placeholder yazılarını okunaklı yapmak için eklendi */
+input::placeholder,
+textarea::placeholder {
+  color: var(--light-text);
+  opacity: 0.6; /* Gerçek yazıdan ayırt edilmesi için biraz soluk yapıldı */
+}
+    /* Modal Sekme Stilleri */
+    .modal-tabs { overflow: hidden; border-bottom: 1px solid var(--light-blue); margin-bottom: 20px; }
+    .tab-link { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; color: var(--light-text); }
+    .tab-link:hover { background-color: var(--light-blue); }
+    .tab-link.active { border-bottom: 2px solid var(--accent-pink); }
+    .tab-content { display: none; }
+
+    /* Öğrenci Listesi Tablo Stilleri */
+    .student-list-container { margin-top: 30px; }
+    #student-list-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    #student-list-table th, #student-list-table td { border: 1px solid var(--light-blue); padding: 12px; text-align: left; }
+    #student-list-table th { background-color: var(--light-blue); }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="login-container" style="display: flex;">
+        <div class="login-box">
+            <h1>Sisteme Giriş</h1>
+            <input type="email" id="email" placeholder="E-posta">
+            <input type="password" id="password" placeholder="Şifre">
+            <button onclick="handleLogin()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <div id="main-app-view" class="main-app">
+        <div class="sidebar">
+            <h2>Öğretmen Paneli</h2>
+            <ul class="sidebar-menu">
+                <li><a href="#" onclick="showView('dashboard-view')">Ana Sayfa</a></li>
+                <li class="has-submenu">
+                    <a href="#" onclick="toggleSubmenu(event)">Öğrenci Yönetimi</a>
+                    <ul class="submenu">
+    <li><a href="#" onclick="openAddStudentModal()">Öğrenci Ekle</a></li>
+    <li><a href="#" onclick="showView('student-list-view')">Öğrenci Listesi</a></li>
+</ul>
+                </li>
+                <li><a href="#" onclick="showView('exams-view')">Deneme Sınavları</a></li>
+                <li><a href="#" onclick="showView('soru-bankasi-view')">Soru Bankaları</a></li>
+                <li><a href="#" onclick="showView('reports-view')">Hata Karnesi</a></li>
+                <li><a href="#" onclick="showView('soru-bankasi-giris-view')">Soru Bankası Girişi</a></li>
+                <li class="logout"><a href="#" onclick="handleLogout()">Çıkış Yap</a></li>
+            </ul>
+        </div
+<div class="content">
+            <div id="dashboard-view" class="page-view">
+                <h2>Ana Sayfa</h2>
+                <p>Öğrenci Takip Sistemi'ne hoş geldiniz! Sol menüden işlem yapabilirsiniz.</p>
+            </div>
+
+            <div id="student-list-view" class="page-view">
+                <h2>Kayıtlı Öğrenci Listesi</h2>
+                <div class="student-list-container">
+                    <table id="student-list-table">
+                        <thead>
+                            <tr>
+                                <th>Adı Soyadı</th>
+                                <th>Sınıfı</th>
+                                <th>TC Kimlik No</th>
+                                <th>Kayıt Tarihi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-list-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="exams-view" class="page-view">
+                <h2>Deneme Sınavları</h2>
+                <p>Bu ekrandan yeni deneme sınavları oluşturabilir ve yönetebilirsiniz.</p>
+            </div>
+
+            <div id="soru-bankasi-view" class="page-view">
+                <h2>Soru Bankaları Yönetimi</h2>
+                <button onclick="openAddSoruBankasiModal()">Yeni Soru Bankası Ekle</button>
+                <div id="soru-bankalari-listesi" style="margin-top: 20px;">
+                    </div>
+            </div>
+
+            <div id="soru-bankasi-giris-view" class="page-view">
+                <h2>Soru Bankası Sonuç Girişi</h2>
+                <div class="form-grid">
+                    <select id="sb-ogrenci-secimi"></select>
+                    <select id="sb-banka-secimi"></select>
+                </div>
+                
+                <div id="sb-dersler-container" style="margin-top: 20px;">
+                    </div>
+        
+                <div id="sb-konular-container" style="margin-top: 20px;">
+                    </div>
+            </div>
+
+            <div id="reports-view" class="page-view">
+                <h2>Hata Karnesi</h2>
+                <p>Bu ekrandan öğrenci bazlı veya sınav bazlı hata karneleri oluşturabilirsiniz.</p>
+            </div>
+        </div>
+    <div id="addSoruBankasiModal" class="modal">
+        <div class="modal-overlay" onclick="closeAddSoruBankasiModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAddSoruBankasiModal()">&times;</button>
+            <h2>Yeni Soru Bankası Ekle</h2>
+            <form id="addSoruBankasiForm" onsubmit="event.preventDefault(); handleAddSoruBankasi();">
+                <div class="form-grid">
+                    <input type="text" id="banka-adi" placeholder="Soru Bankası Adı (Örn: TYT Matematik)" required>
+                    <input type="text" id="yayin-evi" placeholder="Yayın Evi (Örn: 3D Yayınları)" required>
+                </div>
+                <hr style="margin: 20px 0; border-color: var(--light-blue);">
+                <h4>Dersler ve Konular</h4>
+                <div id="dersler-konular-container">
+                    </div>
+                <button type="button" class="secondary-button" onclick="addDersKonuInput()">+ Ders Ekle</button>
+                <button type="submit" style="margin-top: 20px;">Soru Bankasını Kaydet</button>
+            </form>
+        </div>
+    </div>
+    <div id="addStudentModal" class="modal">
+        <div class="modal-overlay" onclick="closeAddStudentModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAddStudentModal()">&times;</button>
+            <h2>Yeni Öğrenci Kaydı</h2>
+            <div class="modal-tabs">
+                <button class="tab-link active" onclick="openTab(event, 'studentInfo')">Öğrenci Bilgileri</button>
+                <button class="tab-link" onclick="openTab(event, 'parentInfo')">Veli Bilgileri</button>
+            </div>
+            <form id="addStudentForm" onsubmit="event.preventDefault(); handleAddStudent();">
+                <div id="studentInfo" class="tab-content" style="display: block;">
+                    <div class="form-grid">
+                        <input type="text" id="student-fname" placeholder="Öğrenci Adı" required>
+                        <input type="text" id="student-lname" placeholder="Öğrenci Soyadı" required>
+                        <input type="text" id="student-class" placeholder="Sınıfı">
+                        <input type="text" id="student-tc" placeholder="TC Kimlik No">
+                        <input type="date" id="student-dob">
+                        <input type="text" id="student-pob" placeholder="Doğum Yeri">
+                        <input type="text" id="student-school" placeholder="Okulu">
+                        <input type="date" id="student-regdate">
+                    </div>
+                    <textarea id="student-address" placeholder="Adres" rows="3"></textarea>
+                </div>
+                <div id="parentInfo" class="tab-content">
+                    <h4>Anne Bilgileri</h4>
+                    <div class="form-grid">
+                        <input type="text" id="parent-mother-name" placeholder="Anne Adı Soyadı">
+                        <input type="text" id="parent-mother-phone" placeholder="Anne Telefon">
+                    </div>
+                    <h4>Baba Bilgileri</h4>
+                    <div class="form-grid">
+                        <input type="text" id="parent-father-name" placeholder="Baba Adı Soyadı">
+                        <input type="text" id="parent-father-phone" placeholder="Baba Telefon">
+                    </div>
+                </div>
+                <button type="submit">Öğrenciyi Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase SDK'larını import et
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Firebase projenizin yapılandırma bilgileri
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYCJSA6lSvDkmaBCpgAzjrGNw31BBfNnk",
+            authDomain: "ogrenci-takip-sistemi-v2.firebaseapp.com",
+            projectId: "ogrenci-takip-sistemi-v2",
+            storageBucket: "ogrenci-takip-sistemi-v2.firebasestorage.app",
+            messagingSenderId: "217475975873",
+            appId: "1:217475975873:web:4634368863f67878206240",
+            measurementId: "G-0469YT9JZP"
+        };
+
+        // Firebase'i başlat
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUserProfile = null;
+
+        // Kullanıcının giriş durumunu dinle
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docRef = doc(db, "kullanicilar", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    currentUserProfile = docSnap.data();
+                    if (currentUserProfile.rol === 'ogretmen') {
+                        document.getElementById('login-view').style.display = 'none';
+                        document.getElementById('main-app-view').style.display = 'flex';
+                        showView('dashboard-view');
+                        loadStudents();
+                        loadSoruBankalari();
+                        initSoruBankasiGiris();
+                    }
+                } else {
+                    alert("Sistemde profiliniz bulunamadı.");
+                    signOut(auth);
+                }
+            } else {
+                currentUserProfile = null;
+                document.getElementById('main-app-view').style.display = 'none';
+                document.getElementById('login-view').style.display = 'flex';
+            }
+        });
+        
+        // GİRİŞ/ÇIKIŞ FONKSİYONLARI
+        window.handleLogin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                alert("E-posta veya şifre hatalı!");
+                console.error("Giriş hatası:", error);
+            }
+        }
+        window.handleLogout = function() { signOut(auth); }
+
+        // MODAL KONTROL FONKSİYONLARI
+        window.openAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'block'; }
+        window.closeAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'none'; }
+        window.openAddSoruBankasiModal = function() {
+            document.getElementById('dersler-konular-container').innerHTML = ''; // Formu temizle
+            addDersKonuInput(); // Başlangıçta bir tane ekle
+            document.getElementById('addSoruBankasiModal').style.display = 'block'; 
+        }
+        window.closeAddSoruBankasiModal = function() { document.getElementById('addSoruBankasiModal').style.display = 'none'; }
+
+        // ÖĞRENCİ EKLEME FONKSİYONU
+        window.handleAddStudent = async function() {
+            const studentData = {
+                adi: document.getElementById('student-fname').value, soyadi: document.getElementById('student-lname').value,
+                sinifi: document.getElementById('student-class').value, tcNo: document.getElementById('student-tc').value,
+                dogumTarihi: document.getElementById('student-dob').value, dogumYeri: document.getElementById('student-pob').value,
+                okulu: document.getElementById('student-school').value, kayitTarihi: document.getElementById('student-regdate').value,
+                adresi: document.getElementById('student-address').value, anneAdi: document.getElementById('parent-mother-name').value,
+                anneTelefon: document.getElementById('parent-mother-phone').value, babaAdi: document.getElementById('parent-father-name').value,
+                babaTelefon: document.getElementById('parent-father-phone').value, kurumId: currentUserProfile.kurumId,
+                ekleyenOgretmen: auth.currentUser.uid, olusturmaTarihi: new Date()
+            };
+            if (!studentData.adi || !studentData.soyadi) { alert('Öğrenci Adı ve Soyadı alanları zorunludur.'); return; }
+            try {
+                await addDoc(collection(db, "ogrenciler"), studentData);
+                alert(`"${studentData.adi} ${studentData.soyadi}" başarıyla eklendi!`);
+                closeAddStudentModal(); loadStudents(); document.getElementById('addStudentForm').reset();
+            } catch (error) { console.error("Öğrenci eklenirken hata oluştu: ", error); alert("Öğrenci eklenirken bir hata oluştu."); }
+        }
+
+        // ÖĞRENCİ LİSTELEME FONKSİYONU
+        async function loadStudents() {
+            const studentTableBody = document.getElementById('student-list-body');
+            studentTableBody.innerHTML = '<tr><td colspan="4">Yükleniyor...</td></tr>';
+            const q = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
+            const querySnapshot = await getDocs(q);
+            studentTableBody.innerHTML = '';
+            if (querySnapshot.empty) { studentTableBody.innerHTML = '<tr><td colspan="4">Henüz kayıtlı öğrenci yok.</td></tr>'; }
+            else {
+                querySnapshot.forEach((doc) => {
+                    const student = doc.data();
+                    const row = `<tr><td>${student.adi} ${student.soyadi}</td><td>${student.sinifi}</td><td>${student.tcNo}</td><td>${student.kayitTarihi}</td></tr>`;
+                    studentTableBody.innerHTML += row;
+                });
+            }
+        }
+        // YENİ: Soru bankası modal'ına dinamik olarak ders/konu input'u ekler
+        window.addDersKonuInput = function() {
+            const container = document.getElementById('dersler-konular-container');
+            const newIndex = container.children.length;
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'form-grid';
+            newInputGroup.innerHTML = `
+                <input type="text" placeholder="Ders Adı" class="ders-adi-input">
+                <input type="text" placeholder="Konular (virgülle ayırın)" class="konular-input">
+            `;
+            container.appendChild(newInputGroup);
+        }
+
+        // YENİ: Soru bankasını veritabanına kaydeder
+        window.handleAddSoruBankasi = async function() {
+            const bankaAdi = document.getElementById('banka-adi').value;
+            const yayinEvi = document.getElementById('yayin-evi').value;
+            if (!bankaAdi || !yayinEvi) { alert('Banka Adı ve Yayınevi zorunludur.'); return; }
+
+            const dersler = [];
+            const dersAdlari = document.querySelectorAll('.ders-adi-input');
+            const konularInputlari = document.querySelectorAll('.konular-input');
+
+            for (let i = 0; i < dersAdlari.length; i++) {
+                const dersAdi = dersAdlari[i].value.trim();
+                if (dersAdi) {
+                    const konular = konularInputlari[i].value.split(',').map(k => k.trim()).filter(Boolean);
+                    dersler.push({ dersAdi, konular });
+                }
+            }
+            
+            const soruBankasiData = {
+                bankaAdi, yayinEvi, dersler,
+                kurumId: currentUserProfile.kurumId,
+                olusturmaTarihi: new Date()
+            };
+
+            try {
+                await addDoc(collection(db, "soruBankalari"), soruBankasiData);
+                alert(`"${bankaAdi}" başarıyla eklendi!`);
+                closeAddSoruBankasiModal();
+                loadSoruBankalari();
+                document.getElementById('addSoruBankasiForm').reset();
+            } catch (error) {
+                console.error("Soru bankası eklenirken hata: ", error);
+                alert("Soru bankası eklenirken bir hata oluştu.");
+            }
+        }
+
+        // YENİ: Soru bankalarını Firestore'dan çeker ve listeler
+        async function loadSoruBankalari() {
+            const container = document.getElementById('soru-bankalari-listesi');
+            container.innerHTML = '<p>Yükleniyor...</p>';
+            const q = query(collection(db, "soruBankalari"), where("kurumId", "==", currentUserProfile.kurumId));
+            const querySnapshot = await getDocs(q);
+            container.innerHTML = '';
+            if (querySnapshot.empty) {
+                container.innerHTML = '<p>Henüz kayıtlı soru bankası yok.</p>';
+            } else {
+                let html = '<ul>';
+                querySnapshot.forEach((doc) => {
+                    const banka = doc.data();
+                    html += `<li><strong>${banka.bankaAdi}</strong> - ${banka.yayinEvi}</li>`;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
+            }
+        }
+        // MENÜ VE MODAL YARDIMCI FONKSİYONLARI
+        window.showView = function(viewId) {
+            document.querySelectorAll('.page-view').forEach(view => view.style.display = 'none');
+            document.getElementById(viewId).style.display = 'block';
+        }
+        window.openTab = function(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        // YENİ: Alt menüyü açıp kapatan fonksiyon
+        window.toggleSubmenu = function(event) {
+            event.preventDefault();
+            const parentLi = event.currentTarget.parentElement;
+            parentLi.classList.toggle('active');
+            const submenu = parentLi.querySelector('.submenu');
+            submenu.classList.toggle('active');
+        }
+// YENİ: Soru Bankası Sonuç Giriş ekranını başlatan ve yöneten ana fonksiyon
+        async function initSoruBankasiGiris() {
+            const ogrenciSelect = document.getElementById('sb-ogrenci-secimi');
+            const bankaSelect = document.getElementById('sb-banka-secimi');
+            const derslerContainer = document.getElementById('sb-dersler-container');
+            const konularContainer = document.getElementById('sb-konular-container');
+
+            // Öğrenci dropdown'ını doldur
+            ogrenciSelect.innerHTML = '<option value="">Öğrenci Seçiniz...</option>';
+            const ogrenciQuery = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
+            const ogrenciSnapshot = await getDocs(ogrenciQuery);
+            ogrenciSnapshot.forEach(doc => {
+                const s = doc.data();
+                ogrenciSelect.innerHTML += `<option value="${doc.id}">${s.adi} ${s.soyadi}</option>`;
+            });
+
+            // Soru bankası dropdown'ını doldur
+            bankaSelect.innerHTML = '<option value="">Soru Bankası Seçiniz...</option>';
+            const bankaQuery = query(collection(db, "soruBankalari"), where("kurumId", "==", currentUserProfile.kurumId));
+            const bankaSnapshot = await getDocs(bankaQuery);
+            bankaSnapshot.forEach(doc => {
+                const b = doc.data();
+                bankaSelect.innerHTML += `<option value="${doc.id}">${b.bankaAdi} - ${b.yayinEvi}</option>`;
+            });
+
+            // Soru bankası seçimi değiştiğinde dersleri yükle
+            bankaSelect.addEventListener('change', async (event) => {
+                derslerContainer.innerHTML = '';
+                konularContainer.innerHTML = '';
+                const bankaId = event.target.value;
+                if (!bankaId) return;
+
+                const bankaRef = doc(db, "soruBankalari", bankaId);
+                const bankaSnap = await getDoc(bankaRef);
+                if (bankaSnap.exists()) {
+                    const bankaData = bankaSnap.data();
+                    derslerContainer.innerHTML = '<h3>Ders Seçiniz:</h3>';
+                    bankaData.dersler.forEach(ders => {
+                        const dersBtn = document.createElement('button');
+                        dersBtn.textContent = ders.dersAdi;
+                        dersBtn.className = 'secondary-button';
+                        dersBtn.style.marginRight = '10px';
+                        dersBtn.onclick = () => {
+                            // Ders butonuna tıklandığında konu giriş tablosunu oluştur
+                            konularContainer.innerHTML = ''; // Önce temizle
+                            let tabloHTML = `
+                                <h3>${ders.dersAdi} - Konu Sonuçları</h3>
+                                <table id="konu-sonuc-tablosu">
+                                    <thead><tr><th>Konu Adı</th><th>Doğru</th><th>Yanlış</th><th>Boş</th></tr></thead>
+                                    <tbody>`;
+                            ders.konular.forEach(konu => {
+                                tabloHTML += `
+                                    <tr data-konu-adi="${konu}">
+                                        <td>${konu}</td>
+                                        <td><input type="number" class="konu-dogru" placeholder="0"></td>
+                                        <td><input type="number" class="konu-yanlis" placeholder="0"></td>
+                                        <td><input type="number" class="konu-bos" placeholder="0"></td>
+                                    </tr>`;
+                            });
+                            tabloHTML += `
+                                    </tbody>
+                                </table>
+                                <button onclick="handleSaveSoruBankasiSonuclari('${bankaId}', '${ders.dersAdi}')">Sonuçları Kaydet</button>`;
+                            konularContainer.innerHTML = tabloHTML;
+                        };
+                        derslerContainer.appendChild(dersBtn);
+                    });
+                }
+            });
+        }
+
+        // YENİ: Girilen soru bankası sonuçlarını veritabanına kaydeder
+        window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi) {
+            const ogrenciId = document.getElementById('sb-ogrenci-secimi').value;
+            if (!ogrenciId) {
+                alert('Lütfen bir öğrenci seçiniz!');
+                return;
+            }
+
+            const konuSonuclari = [];
+            const tabloSatirlari = document.querySelectorAll('#konu-sonuc-tablosu tbody tr');
+            
+            tabloSatirlari.forEach(row => {
+                const dogru = parseInt(row.querySelector('.konu-dogru').value) || 0;
+                const yanlis = parseInt(row.querySelector('.konu-yanlis').value) || 0;
+                const bos = parseInt(row.querySelector('.konu-bos').value) || 0;
+                
+                if (dogru > 0 || yanlis > 0 || bos > 0) {
+                    konuSonuclari.push({
+                        konuAdi: row.dataset.konuAdi,
+                        dogru, yanlis, bos
+                    });
+                }
+            });
+
+            if (konuSonuclari.length === 0) {
+                alert('Kaydedilecek bir sonuç girmediniz.');
+                return;
+            }
+            
+            const sonucData = {
+                ogrenciId, soruBankasiId, dersAdi, konuSonuclari,
+                kurumId: currentUserProfile.kurumId,
+                girisTarihi: new Date()
+            };
+
+            try {
+                await addDoc(collection(db, "soruBankasiSonuclari"), sonucData);
+                alert("Sonuçlar başarıyla kaydedildi!");
+                document.getElementById('sb-konular-container').innerHTML = '';
+            } catch (error) {
+                console.error("Sonuçlar kaydedilirken hata: ", error);
+                alert("Sonuçlar kaydedilirken bir hata oluştu.");
+            }
+        }
+    </script>
+
+</body>
+</html>
