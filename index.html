@@ -7,19 +7,20 @@
     /* Google'dan profesyonel bir fontu projeye dahil ediyoruz */
     @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
 
-    :root {
-    --sidebar-bg: #2b3a4a;         /* Koyu Kurşun Rengi */
-    --main-bg: #f4f7f9;          /* Çok Açık Gri */
-    --accent-color: #ff6b6b;      /* Canlı Mercan */
-    --danger-color: #e53935;      /* Canlı Kırmızı */
-    
-    --card-bg: #ffffff;          /* Kartlar için Beyaz */
-    --text-dark: #2b3a4a;         /* Koyu Kurşun (Ana Yazı) */
-    --text-light: #ffffff;         /* Beyaz (Sidebar Yazıları) */
-    --border-color: #e8eef3;     /* Sınır Çizgisi Rengi */
-    
-    /* Buton ve aktif menü rengi için Turkuaz tonu */
-    --primary-button-bg: #00796b;
+   :root {
+    /* YENİ RENK PALETİ */
+    --sidebar-bg: #012030;       /* Çok Koyu Lacivert */
+    --main-bg: #f4f7f9;          /* Çok Açık Gri (Beyaz Görünüm) */
+    --accent-color: #9AEBA3;      /* Nane Yeşili */
+    --primary-button-bg: #45C4B0;  /* Canlı Turkuaz */
+    --secondary-button-bg: #13678A;  /* Koyu Mavimsi Yeşil */
+
+    /* KULLANICI DENEYİMİ İÇİN KORUNAN RENKLER */
+    --danger-color: #e53935;      /* Canlı Kırmızı (Silme işlemleri için) */
+    --card-bg: #ffffff;          /* Kartlar için Beyaz (Okunabilirlik için) */
+    --text-dark: #012030;         /* Koyu Lacivert (Ana Yazı Rengi) */
+    --text-light: #ffffff;       /* Beyaz (Sidebar Yazıları) */
+    --border-color: #e8eef3;     /* Nötr ve Açık Gri Sınır Rengi */
 }
 /* Sekmelerin bulunduğu genel alan (Buton Kapsayıcısı) */
 .modal-tabs {
@@ -134,12 +135,12 @@
 
     /* Ana Uygulama Yapısı */
     .main-app { display: none; height: 100vh; }
-    .sidebar { width: 250px; background-color: var(--sidebar-bg); color: var(--text-light); display: flex; flex-direction: column; }
+    .sidebar { position: relative; width: 250px; background-color: var(--sidebar-bg); color: var(--text-light); display: flex; flex-direction: column; }
     .sidebar h2 { text-align: center; padding: 25px 10px; font-size: 1.5em; background-color: rgba(0,0,0,0.1); }
     .sidebar-menu { list-style: none; width: 100%; }
     .sidebar-menu li a { display: flex; align-items: center; padding: 16px 25px; color: var(--text-light); text-decoration: none; transition: background-color 0.2s; border-left: 4px solid transparent; }
     .sidebar-menu li a:hover { background-color: rgba(0,0,0,0.2); }
-    .sidebar-menu li.active > a { background-color: rgba(0,0,0,0.2); border-left: 4px solid var(--accent-color); }
+    
     .sidebar-menu i { margin-right: 15px; width: 22px; font-size: 1.2em; text-align: center; color: var(--accent-color); }
     .sidebar-menu .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.2); }
     .submenu { list-style: none; display: none; background-color: rgba(0,0,0,0.15); }
@@ -158,7 +159,7 @@
     button { padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; margin: 5px; transition: all 0.2s; border: none; color: white; }
     button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .primary-button { background-color: var(--sidebar-bg); }
-    .secondary-button { background-color: #6c757d; }
+    .secondary-button { background-color: var(--secondary-button-bg); }
     .btn-danger { background-color: var(--danger-color); }
     
     input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 1em; }
@@ -227,6 +228,141 @@
     font-size: 14px;
     margin: 0; /* Ekstra margin'leri sıfırlar */
 }
+/* ========================================================== */
+/* YENİ: Soru Bankası Rapor Stilleri                          */
+/* ========================================================== */
+.sb-report-container {
+    display: flex;
+    gap: 30px;
+}
+.sb-report-main {
+    flex-grow: 1;
+}
+.sb-report-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+}
+.sb-report-header {
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+.sb-report-header .student-info {
+    text-align: right;
+    font-size: 0.9em;
+    color: #666;
+}
+.sb-report-header h3 {
+    font-size: 2.2em;
+    color: var(--text-dark);
+    margin: 0;
+}
+.summary-card {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.summary-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    color: var(--text-dark);
+}
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.stat-box {
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.stat-box .value {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--secondary-button-bg);
+}
+.stat-box .label {
+    font-size: 0.9em;
+    color: #777;
+}
+.hata-analizi-list .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 0.95em;
+    border-bottom: 1px solid var(--border-color);
+}
+.hata-analizi-list .item:last-child {
+    border-bottom: none;
+}
+.hata-analizi-list .item .value {
+    font-weight: 700;
+}
+.ders-performans-card {
+    margin-bottom: 25px;
+}
+.ders-performans-card .ders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 15px;
+}
+.ders-performans-card .ders-header h5 {
+    font-size: 1.4em;
+    margin: 0;
+}
+.ders-performans-card .ders-header .basari {
+    font-size: 1em;
+    font-weight: 700;
+    color: #555;
+}
+.konu-list .konu-item {
+    display: grid;
+    grid-template-columns: 2fr 60px 1fr 1.5fr;
+    gap: 15px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+.konu-list .konu-item:first-child { /* Başlık satırı */
+    font-weight: 700;
+    color: #888;
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+.konu-list .konu-item:last-child {
+    border-bottom: none;
+}
+.konu-basari-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.konu-basari-bar .dolu-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+.hata-sebebi-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+}
+/* Hata Sebeplerine Göre Renkler */
+.hata-sebebi-tag.bilgi-eksikligi { background-color: #e53935; } /* Kırmızı */
+.hata-sebebi-tag.dikkatsizlik { background-color: #f57c00; } /* Turuncu */
+.hata-sebebi-tag.anlama-hatasi { background-color: #5e35b1; } /* Mor */
 /* ================================================= */
 /* YENİ: Detaylı Sonuç Giriş Ekranı Stilleri          */
 /* ================================================= */
@@ -446,6 +582,93 @@
     width: 50px;
     text-align: center;
 }
+/* ================================================= */
+/* YENİ: Sidebar Daraltma (Collapse) Stilleri        */
+/* ================================================= */
+
+/* Sidebar ve İçerik Alanı için Geçiş Efektleri */
+.sidebar, .main-content-wrapper {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Daraltma Butonu */
+#sidebar-toggle-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: -20px; /* Yarısı dışarıda kalacak şekilde */
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease-in-out, background-color 0.2s;
+}
+
+#sidebar-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar Daraltıldığında... */
+.sidebar.collapsed {
+    width: 80px; /* Sadece ikonlar sığacak kadar genişlik */
+}
+
+/* Daraltılmış menüdeki başlığı gizle */
+.sidebar.collapsed h2 {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Daraltılmış menüdeki linklerin yazılarını (span) gizle */
+.sidebar.collapsed .sidebar-menu span {
+    display: none;
+}
+
+/* Daraltılmış menüdeki ikonları ortala */
+.sidebar.collapsed .sidebar-menu li a {
+    justify-content: center;
+}
+.sidebar.collapsed .sidebar-menu li a i {
+    margin-right: 0;
+}
+
+/* Daraltılmış menüdeki alt menüleri gizle */
+.sidebar.collapsed .submenu {
+    display: none !important; /* Her durumda gizli kalmalı */
+}
+.sidebar.collapsed .sidebar-menu li.active {
+    background-color: transparent; /* Aktif olsa bile arka plan rengini sıfırla */
+}
+
+
+
+/* İçerik alanı, menü daraltıldığında sola doğru genişlesin */
+.main-content-wrapper.expanded {
+    margin-left: 80px;
+}
+
+/* ========================================================== */
+/* YENİ: Aktif Menü Vurgulama Stilleri                        */
+/* ========================================================== */
+
+/* Aktif olan ana menü öğesinin stilini belirler */
+.sidebar-menu > li.active-menu-item > a {
+    background-color: rgba(0, 0, 0, 0.3); /* Arka planı biraz daha koyu yap */
+    border-left: 4px solid var(--accent-color); /* Soluna belirgin bir çizgi ekle */
+    font-weight: 700; /* Yazıyı kalınlaştır */
+}
+
+/* Alt menüsü olan bir başlık aktif olduğunda (açıldığında) */
+.sidebar-menu li.submenu-active > a {
+    background-color: rgba(0, 0, 0, 0.2);
+}
 </style>
    
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -464,22 +687,32 @@
     <div id="main-app-view" class="main-app">
         <div class="sidebar">
             <h2>Öğretmen Paneli</h2>
+<button id="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <i class="fa-solid fa-bars"></i>
+</button>
 <ul class="sidebar-menu">
-                <li><a href="#" onclick="showView('dashboard-view')"><i class="fa-solid fa-house"></i><span>Ana Sayfa</span></a></li>
-                <li class="has-submenu">
-                    <a href="#" onclick="toggleSubmenu(event)"><i class="fa-solid fa-users"></i><span>Öğrenci Yönetimi</span></a>
-                    <ul class="submenu">
-                        <li><a href="#" onclick="openAddStudentModal()"><i class="fa-solid fa-user-plus"></i><span>Öğrenci Ekle</span></a></li>
-                        <li><a href="#" onclick="showView('student-list-view')"><i class="fa-solid fa-list"></i><span>Öğrenci Listesi</span></a></li>
-                    </ul>
-                </li>
-                <li><a href="#" onclick="showView('exams-view')"><i class="fa-solid fa-file-lines"></i><span>Deneme Sınavları</span></a></li>
-                <li><a href="#" onclick="showView('soru-bankasi-view')"><i class="fa-solid fa-book"></i><span>Soru Bankaları</span></a></li>
-                <li><a href="#" onclick="showView('soru-bankasi-giris-view')"><i class="fa-solid fa-pen-to-square"></i><span>Soru Bankası Girişi</span></a></li>
-                <li><a href="#" onclick="showView('reports-view')"><i class="fa-solid fa-chart-pie"></i><span>Hata Karnesi</span></a></li>
-                <li class="logout"><a href="#" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Çıkış Yap</span></a></li>
-            </ul>
-        </div> <div class="content">
+    <li data-view="dashboard-view"><a href="#" onclick="showView('dashboard-view')"><i class="fa-solid fa-house"></i><span>Ana Sayfa</span></a></li>
+    <li class="has-submenu">
+        <a href="#" onclick="toggleSubmenu(event)"><i class="fa-solid fa-users"></i><span>Öğrenci Yönetimi</span></a>
+        <ul class="submenu">
+            <li><a href="#" onclick="openAddStudentModal()"><i class="fa-solid fa-user-plus"></i><span>Öğrenci Ekle</span></a></li>
+            <li data-view="student-list-view"><a href="#" onclick="showView('student-list-view')"><i class="fa-solid fa-list"></i><span>Öğrenci Listesi</span></a></li>
+        </ul>
+    </li>
+    <li data-view="exams-view"><a href="#" onclick="showView('exams-view')"><i class="fa-solid fa-file-lines"></i><span>Deneme Sınavları</span></a></li>
+    <li class="has-submenu">
+        <a href="#" onclick="toggleSubmenu(event)"><i class="fa-solid fa-book"></i><span>Soru Bankası</span></a>
+        <ul class="submenu">
+            <li data-view="soru-bankasi-view"><a href="#" onclick="showView('soru-bankasi-view')"><i class="fa-solid fa-list-ul"></i><span>Banka Listesi</span></a></li>
+            <li data-view="soru-bankasi-giris-view"><a href="#" onclick="showView('soru-bankasi-giris-view')"><i class="fa-solid fa-pen-to-square"></i><span>Sonuç Girişi</span></a></li>
+        </ul>
+    </li>
+    <li data-view="reports-view"><a href="#" onclick="showView('reports-view')"><i class="fa-solid fa-chart-pie"></i><span>Deneme Karnesi</span></a></li>
+    <li data-view="sb-reports-view"><a href="#" onclick="showView('sb-reports-view')"><i class="fa-solid fa-address-card"></i><span>Soru Bankası Karnesi</span></a></li>
+    <li class="logout"><a href="#" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Çıkış Yap</span></a></li>
+</ul>
+        </div> <div class="main-content-wrapper">
+    <div class="content">
             <div id="dashboard-view" class="page-view">
                 <h2>Ana Sayfa</h2>
                 <p>Öğrenci Takip Sistemi'ne hoş geldiniz! Sol menüden işlem yapabilirsiniz.</p>
@@ -570,7 +803,19 @@
                     </div>
                 </div>
             </div>
-
+<div id="sb-reports-view" class="page-view">
+    <h2>Soru Bankası Karnesi</h2>
+    <div class="card">
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr;">
+            <select id="sb-rapor-ogrenci-secimi"></select>
+            <input type="date" id="sb-rapor-baslangic-tarihi" title="Başlangıç Tarihi">
+            <input type="date" id="sb-rapor-bitis-tarihi" title="Bitiş Tarihi">
+            <button class="primary-button" onclick="generateSoruBankasiRaporu()">Rapor Oluştur</button>
+        </div>
+    </div>
+    <div id="sb-rapor-sonuc-container" style="margin-top: 20px;">
+        </div>
+</div>
             <div id="reports-view" class="page-view">
                 <h2>Hata Karnesi</h2>
                 <div class="card">
@@ -583,32 +828,26 @@
 </button>
                     </div>
                 </div>
-                <div id="rapor-sonuc-container" class="card" style="margin-top: 20px;">
+<div id="rapor-sonuc-container" class="card" style="margin-top: 20px;">
                     <p>Raporu görmek için lütfen öğrenci ve sınav seçip "Rapor Oluştur" butonuna basınız.</p>
                 </div>
-            </div>
-
-        </div> </div>  
-
-
-
-   <div id="addSoruBankasiModal" class="modal">
+            </div> </div> </div> </div> <div id="addSoruBankasiModal" class="modal">
         <div class="modal-overlay" onclick="closeAddSoruBankasiModal()"></div>
         <div class="modal-content">
             <button class="modal-close" onclick="closeAddSoruBankasiModal()">&times;</button>
             <h2>Yeni Soru Bankası Ekle</h2>
-<form id="addSoruBankasiForm" onsubmit="event.preventDefault(); handleAddSoruBankasi();">
-    <div class="form-grid">
-        <input type="text" id="banka-adi" placeholder="Soru Bankası Adı (Örn: TYT Matematik)" required>
-        <input type="text" id="yayin-evi" placeholder="Yayın Evi (Örn: 3D Yayınları)" required>
-    </div>
-    <hr style="margin: 20px 0;">
-    <h4>Dersler ve Konular</h4>
-    <div id="dersler-konular-container">
-        </div>
-    <button type="button" class="secondary-button" onclick="addDersKarti('add')">+ Ders Ekle</button>
-    <button type="submit" class="primary-button" style="width: 100%; margin-top: 20px;">Soru Bankasını Kaydet</button>
-</form>
+            <form id="addSoruBankasiForm" onsubmit="event.preventDefault(); handleAddSoruBankasi();">
+                <div class="form-grid">
+                    <input type="text" id="banka-adi" placeholder="Soru Bankası Adı (Örn: TYT Matematik)" required>
+                    <input type="text" id="yayin-evi" placeholder="Yayın Evi (Örn: 3D Yayınları)" required>
+                </div>
+                <hr style="margin: 20px 0;">
+                <h4>Dersler ve Konular</h4>
+                <div id="dersler-konular-container">
+                    </div>
+                <button type="button" class="secondary-button" onclick="addDersKarti('add')">+ Ders Ekle</button>
+                <button type="submit" class="primary-button" style="width: 100%; margin-top: 20px;">Soru Bankasını Kaydet</button>
+            </form>
         </div>
     </div>
 <div id="editSoruBankasiModal" class="modal">
@@ -733,6 +972,173 @@
 
 
         <script type="module">
+
+// ==========================================================
+// YENİ: Soru Bankası Karnesi Oluşturma Fonksiyonları
+// ==========================================================
+async function initSoruBankasiRaporView() {
+    const ogrenciSelect = document.getElementById('sb-rapor-ogrenci-secimi');
+    ogrenciSelect.innerHTML = '<option value="">Öğrenci Seçiniz...</option>';
+    const ogrenciQuery = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
+    const ogrenciSnapshot = await getDocs(ogrenciQuery);
+    ogrenciSnapshot.forEach(doc => {
+        ogrenciSelect.innerHTML += `<option value="${doc.id}">${doc.data().adi} ${doc.data().soyadi}</option>`;
+    });
+
+    // Bitiş tarihini bugüne ayarla
+    document.getElementById('sb-rapor-bitis-tarihi').valueAsDate = new Date();
+}
+
+// showView fonksiyonunu güncelleyerek yeni sayfa için init fonksiyonunu çağıralım.
+// Eski showView fonksiyonunu silip bunu yapıştırın.
+window.showView = function(viewId) {
+    document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active-menu-item', 'submenu-active'));
+    document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('active'));
+
+    const activeMenuItem = document.querySelector(`.sidebar-menu li[data-view="${viewId}"]`);
+    if (activeMenuItem) {
+        activeMenuItem.classList.add('active-menu-item');
+        const parentSubmenu = activeMenuItem.closest('.has-submenu');
+        if(parentSubmenu) {
+            parentSubmenu.classList.add('submenu-active');
+            parentSubmenu.querySelector('.submenu').classList.add('active');
+        }
+    }
+    
+    document.querySelectorAll('.page-view').forEach(view => view.style.display = 'none');
+    
+    const viewToShow = document.getElementById(viewId);
+    if (viewToShow) {
+        viewToShow.style.display = 'block';
+    }
+
+    if (viewId === 'reports-view') initReportsView();
+    if (viewId === 'sb-reports-view') initSoruBankasiRaporView(); // YENİ EKLENEN SATIR
+}
+
+
+// Raporu oluşturan ana fonksiyon
+window.generateSoruBankasiRaporu = async function() {
+    const ogrenciId = document.getElementById('sb-rapor-ogrenci-secimi').value;
+    const baslangicTarihi = document.getElementById('sb-rapor-baslangic-tarihi').value;
+    const bitisTarihi = document.getElementById('sb-rapor-bitis-tarihi').value;
+    const container = document.getElementById('sb-rapor-sonuc-container');
+
+    if (!ogrenciId) {
+        alert("Lütfen bir öğrenci seçiniz.");
+        return;
+    }
+    container.innerHTML = "<p>Rapor oluşturuluyor, lütfen bekleyiniz...</p>";
+
+    // Firestore sorgusu
+    let q = query(
+        collection(db, "soruBankasiSonuclari"),
+        where("ogrenciId", "==", ogrenciId)
+    );
+    // Tarih filtrelerini uygula
+    if (baslangicTarihi) q = query(q, where("girisTarihi", ">=", new Date(baslangicTarihi)));
+    if (bitisTarihi) {
+        let bitis = new Date(bitisTarihi);
+        bitis.setHours(23, 59, 59, 999); // Bitiş tarihini gün sonuna ayarla
+        q = query(q, where("girisTarihi", "<=", bitis));
+    }
+    
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        container.innerHTML = "<p>Seçilen filtreler için sonuç bulunamadı.</p>";
+        return;
+    }
+
+    // Veriyi İşle
+    let toplamDogru = 0, toplamYanlis = 0, toplamBos = 0;
+    let dersPerformanslari = {};
+    let hataSebebiAnalizi = {};
+
+    querySnapshot.forEach(doc => {
+        const sonuc = doc.data();
+        if (!dersPerformanslari[sonuc.dersAdi]) {
+            dersPerformanslari[sonuc.dersAdi] = [];
+        }
+        sonuc.konuSonuclari.forEach(konu => {
+            toplamDogru += konu.dogru || 0;
+            toplamYanlis += konu.yanlis || 0;
+            toplamBos += konu.bos || 0;
+            dersPerformanslari[sonuc.dersAdi].push(konu);
+            if (konu.hataSebebi && konu.yanlis > 0) {
+                hataSebebiAnalizi[konu.hataSebebi] = (hataSebebiAnalizi[konu.hataSebebi] || 0) + konu.yanlis;
+            }
+        });
+    });
+
+    const toplamSoru = toplamDogru + toplamYanlis + toplamBos;
+    const ogrenciAdi = document.getElementById('sb-rapor-ogrenci-secimi').options[document.getElementById('sb-rapor-ogrenci-secimi').selectedIndex].text;
+
+    // HTML Oluştur
+    let reportHTML = `<div class="sb-report-header">
+        <div class="student-info">
+            <strong>${ogrenciAdi}</strong><br>
+            Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}
+        </div>
+        <h3>Soru Bankası Karnesi</h3>
+    </div>
+    <div class="sb-report-container">
+        <div class="sb-report-main">`;
+
+    for (const dersAdi in dersPerformanslari) {
+        const konular = dersPerformanslari[dersAdi];
+        let dersDogru = 0, dersToplam = 0;
+        konular.forEach(k => {
+            dersDogru += k.dogru || 0;
+            dersToplam += (k.dogru || 0) + (k.yanlis || 0) + (k.bos || 0);
+        });
+        const dersBasari = dersToplam > 0 ? Math.round((dersDogru / dersToplam) * 100) : 0;
+
+        reportHTML += `<div class="ders-performans-card card">
+            <div class="ders-header">
+                <h5>${dersAdi}</h5>
+                <span class="basari">Başarı: ${dersBasari}%</span>
+            </div>
+            <div class="konu-list">
+                <div class="konu-item"><span class="konu-adi">Konu Adı</span><span>Soru</span><span>Başarı %</span><span>Temel Hata Sebebi</span></div>`;
+
+        konular.forEach(konu => {
+            const konuToplam = (konu.dogru || 0) + (konu.yanlis || 0) + (konu.bos || 0);
+            const konuBasari = konuToplam > 0 ? Math.round(((konu.dogru || 0) / konuToplam) * 100) : 0;
+            const barColor = konuBasari > 75 ? '#66bb6a' : (konuBasari > 50 ? '#ffca28' : '#ef5350');
+            const hataClass = konu.hataSebebi ? konu.hataSebebi.toLowerCase().replace(/[^a-z]/g, '') : '';
+
+            reportHTML += `<div class="konu-item">
+                <span class="konu-adi">${konu.konuAdi}</span>
+                <span>${konuToplam}</span>
+                <div class="konu-basari-bar"><div class="dolu-bar" style="width: ${konuBasari}%; background-color: ${barColor};"></div></div>
+                <div>${konu.hataSebebi ? `<span class="hata-sebebi-tag ${hataClass}">${konu.hataSebebi}</span>` : '-'}</div>
+            </div>`;
+        });
+        reportHTML += `</div></div>`;
+    }
+    
+    reportHTML += `</div><div class="sb-report-sidebar">
+        <div class="summary-card">
+            <h4>Genel Özet</h4>
+            <div class="stat-grid">
+                <div class="stat-box"><div class="value">${toplamSoru}</div><div class="label">Toplam Soru</div></div>
+                <div class="stat-box"><div class="value">${toplamDogru}</div><div class="label">Doğru</div></div>
+                <div class="stat-box"><div class="value">${toplamYanlis}</div><div class="label">Yanlış</div></div>
+                <div class="stat-box"><div class="value">${toplamBos}</div><div class="label">Boş</div></div>
+            </div>
+        </div>
+        <div class="summary-card">
+            <h4>Hata Sebebi Analizi</h4>
+            <div class="hata-analizi-list">`;
+            
+    for (const sebep in hataSebebiAnalizi) {
+        reportHTML += `<div class="item"><span>${sebep}</span><span class="value">${hataSebebiAnalizi[sebep]} Yanlış</span></div>`;
+    }
+    
+    reportHTML += `</div></div></div></div>`;
+
+    container.innerHTML = reportHTML;
+}
 
 // BU SATIRDAN İTİBAREN YAPIŞTIRMAYA BAŞLAYIN
 
@@ -946,37 +1352,54 @@ window.handleUpdateDenemeSinavi = async function() {
             }
         }
         window.handleLogout = function() { signOut(auth); }
-// Sayfa görünümlerini yöneten ana ve tek fonksiyon
+// ==========================================================
+// SİLDİĞİNİZ YERE BU DOĞRU BLOĞU YAPIŞTIRIN
+// ==========================================================
+// GÜNCELLENMİŞ: Sayfa görünümlerini ve aktif menüyü yöneten TEK ve DOĞRU fonksiyon
 window.showView = function(viewId) {
-    // Tüm sayfaları gizle
+    // 1. Aktif menü vurgularını yönet
+    document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active-menu-item', 'submenu-active'));
+    document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('active'));
+
+    const activeMenuItem = document.querySelector(`.sidebar-menu li[data-view="${viewId}"]`);
+    if (activeMenuItem) {
+        activeMenuItem.classList.add('active-menu-item');
+        const parentSubmenu = activeMenuItem.closest('.has-submenu');
+        if(parentSubmenu) {
+            parentSubmenu.classList.add('submenu-active');
+            parentSubmenu.querySelector('.submenu').classList.add('active');
+        }
+    }
+    
+    // 2. Tüm sayfaları gizle
     document.querySelectorAll('.page-view').forEach(view => view.style.display = 'none');
     
-    // Sadece istenen sayfayı göster
+    // 3. Sadece istenen sayfayı göster
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
         viewToShow.style.display = 'block';
     }
 
-    // Eğer açılan sayfa 'Hata Karnesi' ise, select kutularını doldurma fonksiyonunu çalıştır
-    if (viewId === 'reports-view') {
-        initReportsView();
-    }
+    // 4. Sayfaya özel başlangıç fonksiyonlarını çağır
+    if (viewId === 'reports-view') initReportsView();
+    if (viewId === 'sb-reports-view') initSoruBankasiRaporView();
 }
-        // MODAL KONTROL FONKSİYONLARI
-        window.openAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'block'; }
-        window.closeAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'none'; }
-        
-       
-        window.closeAddSoruBankasiModal = function() { document.getElementById('addSoruBankasiModal').style.display = 'none'; }
 
-        window.closeEditSoruBankasiModal = function() { document.getElementById('editSoruBankasiModal').style.display = 'none'; }
-        
+
+// MODAL KONTROL FONKSİYONLARI (Artık doğru yerdeler)
+window.openAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'block'; }
+window.closeAddStudentModal = function() { document.getElementById('addStudentModal').style.display = 'none'; }
+window.closeAddSoruBankasiModal = function() { document.getElementById('addSoruBankasiModal').style.display = 'none'; }
+window.closeEditSoruBankasiModal = function() { document.getElementById('editSoruBankasiModal').style.display = 'none'; }
 window.openAddDenemeSinaviModal = function() {
     document.getElementById('dersler-sorular-container').innerHTML = '';
-    addDersKonuGirisi(); // DÜZELTME: Yeni ve doğru fonksiyonu çağırıyoruz
+    addDersKonuGirisi();
     document.getElementById('addDenemeSinaviModal').style.display = 'block';
 }
-        window.closeAddDenemeSinaviModal = function() { document.getElementById('addDenemeSinaviModal').style.display = 'none'; }
+window.closeAddDenemeSinaviModal = function() { document.getElementById('addDenemeSinaviModal').style.display = 'none'; }
+// ==========================================================
+// YAPIŞTIRMA İŞLEMİNİ BU SATIRDA BİTİRİN
+// ==========================================================
        // YENİ: Ders ve Konu Girişi için dinamik alanlar oluşturan fonksiyon
 window.addDersKonuGirisi = function() {
     const container = document.getElementById('dersler-sorular-container');
@@ -1205,17 +1628,16 @@ window.handleAddDenemeSinavi = async function() {
         }
 
         
-
-       
+// YUKARIDAKİ FONKSİYONUN YERİNE BUNU EKLEYİN
+// ==========================================================
 window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, sonucDocId) {
     const ogrenciId = document.getElementById('sb-ogrenci-secimi').value;
     if (!ogrenciId) { alert('Lütfen bir öğrenci seçiniz!'); return; }
 
     const tabloSatirlari = document.querySelectorAll('#konu-sonuc-tablosu tbody tr');
-    let yeniSonuclarMap = new Map(); // Yeni ve güncellenmiş sonuçları tutmak için Map
+    let yeniSonuclarMap = new Map();
     let veriGirildi = false;
 
-    // Önce mevcut veritabanı kaydını çek (varsa)
     if (sonucDocId && sonucDocId !== 'null') {
         const docRef = doc(db, "soruBankasiSonuclari", sonucDocId);
         const docSnap = await getDoc(docRef);
@@ -1224,23 +1646,22 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
         }
     }
     
-    // Formdaki verileri oku ve Map'i güncelle
     tabloSatirlari.forEach(row => {
         const konuAdi = row.dataset.konuAdi;
         const dogruInput = row.querySelector('.konu-dogru').value;
         const yanlisInput = row.querySelector('.konu-yanlis').value;
         const bosInput = row.querySelector('.konu-bos').value;
-        
-        // Sadece değeri olan veya daha önce kaydedilmiş olanları işle
-        if(dogruInput !== '' || yanlisInput !== '' || bosInput !== '' || yeniSonuclarMap.has(konuAdi)){
+        const hataSebebi = row.querySelector('.konu-hata-sebebi').value;
+        const cozulmeTarihi = row.querySelector('.konu-cozulme-tarihi').value;
+
+        if(dogruInput !== '' || yanlisInput !== '' || bosInput !== '' || cozulmeTarihi !== '' || yeniSonuclarMap.has(konuAdi)){
             const dogru = parseInt(dogruInput) || 0;
             const yanlis = parseInt(yanlisInput) || 0;
             const bos = parseInt(bosInput) || 0;
             
             const mevcutKonu = yeniSonuclarMap.get(konuAdi) || {};
-            // Eğer veride bir değişiklik varsa veya yeni ekleniyorsa tarihi güncelle
-            if(mevcutKonu.dogru !== dogru || mevcutKonu.yanlis !== yanlis || mevcutKonu.bos !== bos) {
-                 mevcutKonu.cozulmeTarihi = new Date();
+            
+            if (mevcutKonu.dogru !== dogru || mevcutKonu.yanlis !== yanlis || mevcutKonu.bos !== bos || mevcutKonu.hataSebebi !== hataSebebi || formatDateForInput(mevcutKonu.cozulmeTarihi) !== cozulmeTarihi) {
                  veriGirildi = true;
             }
             
@@ -1248,12 +1669,19 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
             mevcutKonu.dogru = dogru;
             mevcutKonu.yanlis = yanlis;
             mevcutKonu.bos = bos;
+            mevcutKonu.hataSebebi = hataSebebi;
+            if (cozulmeTarihi) {
+                mevcutKonu.cozulmeTarihi = new Date(cozulmeTarihi);
+            } else {
+                delete mevcutKonu.cozulmeTarihi;
+            }
+
             yeniSonuclarMap.set(konuAdi, mevcutKonu);
         }
     });
     
-    if (!veriGirildi && sonucDocId === 'null') {
-        alert("Kaydedilecek yeni bir sonuç girmediniz.");
+    if (!veriGirildi) {
+        alert("Kaydedilecek yeni bir veri girmediniz veya mevcut veride değişiklik yapmadınız.");
         return;
     }
 
@@ -1261,12 +1689,10 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
     
     try {
         if (sonucDocId && sonucDocId !== 'null') {
-            // KAYIT VARSA GÜNCELLE
             const docRef = doc(db, "soruBankasiSonuclari", sonucDocId);
             await updateDoc(docRef, { konuSonuclari: sonKonuSonuclari });
             alert("Sonuçlar başarıyla güncellendi!");
         } else {
-            // KAYIT YOKSA YENİ EKLE
             const sonucData = { ogrenciId, soruBankasiId, dersAdi, konuSonuclari: sonKonuSonuclari, kurumId: currentUserProfile.kurumId, girisTarihi: new Date() };
             await addDoc(collection(db, "soruBankasiSonuclari"), sonucData);
             alert("Sonuçlar başarıyla kaydedildi!");
@@ -1617,6 +2043,9 @@ window.handleUpdateSoruBankasi = async function() {
         loadSoruBankalari();
     } catch (error) { console.error("Güncelleme hatası: ", error); alert("Hata oluştu."); }
 }
+
+// BU FONKSİYONUN DOĞRU HALİNİ YAPIŞTIRIN
+// ===================================
 async function initSoruBankasiGiris() {
     const ogrenciSelect = document.getElementById('sb-ogrenci-secimi');
     const bankaSelect = document.getElementById('sb-banka-secimi');
@@ -1658,7 +2087,6 @@ async function initSoruBankasiGiris() {
             derslerHTML += '</select>';
             derslerContainer.innerHTML = derslerHTML;
 
-            // Ders dropdown'ına olay dinleyici ekle
             const dersSelect = document.getElementById('sb-ders-secimi');
             dersSelect.addEventListener('change', async () => {
                 konularContainer.innerHTML = '<p>Sonuçlar yükleniyor...</p>';
@@ -1671,21 +2099,20 @@ async function initSoruBankasiGiris() {
                 const secilenOgrenciId = ogrenciSelect.value;
                 if (!secilenOgrenciId) {
                     alert('Lütfen önce bir öğrenci seçin!');
-                    dersSelect.value = ''; // Seçimi sıfırla
+                    dersSelect.value = ''; 
                     konularContainer.innerHTML = '';
                     return;
                 }
 
                 const secilenDers = bankaData.dersler[secilenDersIndex];
                 
-                // --- MEVCUT SONUÇLARI KONTROL ETME BÖLÜMÜ ---
                 const q = query(collection(db, "soruBankasiSonuclari"),
                     where("ogrenciId", "==", secilenOgrenciId),
                     where("soruBankasiId", "==", bankaId),
                     where("dersAdi", "==", secilenDers.dersAdi)
                 );
                 const querySnapshot = await getDocs(q);
-                let mevcutSonuclar = {}; // Konu adına göre sonuçları saklamak için bir nesne
+                let mevcutSonuclar = {};
                 let sonucDocId = null;
 
                 if (!querySnapshot.empty) {
@@ -1696,21 +2123,28 @@ async function initSoruBankasiGiris() {
                     });
                 }
                 
-                // Konu tablosunu oluştururken mevcut verileri de ekle
                 let tabloHTML = `<h3>${secilenDers.dersAdi} - Konu Sonuçları</h3>
                                  <table id="konu-sonuc-tablosu">
-                                     <thead><tr><th>Konu Adı</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Çözülme Tarihi</th></tr></thead>
+                                     <thead><tr><th>Konu Adı</th><th>Doğru</th><th>Yanlış</th><th>Hata Sebebi</th><th>Boş</th><th>Çözülme Tarihi</th></tr></thead>
                                      <tbody>`;
                 secilenDers.konular.forEach(konu => {
                     const sonuc = mevcutSonuclar[konu.konuAdi] || {};
-                    const tarih = sonuc.cozulmeTarihi ? new Date(sonuc.cozulmeTarihi.seconds * 1000).toLocaleDateString('tr-TR') : '-';
+                    const tarih = formatDateForInput(sonuc.cozulmeTarihi);
+
+                    const hataSebebiOptions = `
+                        <option value="" ${!sonuc.hataSebebi ? 'selected' : ''}>Seçiniz</option>
+                        <option value="Bilgi Eksikliği" ${sonuc.hataSebebi === 'Bilgi Eksikliği' ? 'selected' : ''}>Bilgi Eksikliği</option>
+                        <option value="Dikkatsizlik / İşlem Hatası" ${sonuc.hataSebebi === 'Dikkatsizlik / İşlem Hatası' ? 'selected' : ''}>Dikkatsizlik / İşlem Hatası</option>
+                        <option value="Soru Kökünü Anlama Hatası" ${sonuc.hataSebebi === 'Soru Kökünü Anlama Hatası' ? 'selected' : ''}>Soru Kökünü Anlama Hatası</option>
+                    `;
 
                     tabloHTML += `<tr data-konu-adi="${konu.konuAdi}">
                                     <td>${konu.konuAdi}</td> 
                                     <td><input type="number" class="konu-dogru" placeholder="0" value="${sonuc.dogru || ''}"></td>
                                     <td><input type="number" class="konu-yanlis" placeholder="0" value="${sonuc.yanlis || ''}"></td>
+                                    <td><select class="konu-hata-sebebi">${hataSebebiOptions}</select></td>
                                     <td><input type="number" class="konu-bos" placeholder="0" value="${sonuc.bos || ''}"></td>
-                                    <td><span class="cozulme-tarihi">${tarih}</span></td>
+                                    <td><input type="date" class="konu-cozulme-tarihi" value="${tarih}"></td>
                                   </tr>`;
                 });
                 tabloHTML += `</tbody></table>
@@ -1719,8 +2153,9 @@ async function initSoruBankasiGiris() {
                 konularContainer.innerHTML = tabloHTML;
             });
         }
-    });
-}
+    }); 
+} // <-- DÜZELTME BURADA: Fonksiyonu kapatan '}' eklendi.
+
 window.showDetayliSonucGirisEkrani = async function(sinavId) {
     // Global değişkende sınav ID'sini saklayalım ki kaydederken kullanalım
     window.currentSinavIdForEntry = sinavId;
@@ -1901,7 +2336,16 @@ window.handleSaveDetayliSonuclar = async function() {
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
         }
+// ==========================================================
+// YENİ: Sidebar'ı daraltıp genişleten fonksiyon
+// ==========================================================
+window.toggleSidebar = function() {
+    const sidebar = document.querySelector('.sidebar');
+    const contentWrapper = document.querySelector('.main-content-wrapper');
 
+    sidebar.classList.toggle('collapsed');
+    contentWrapper.classList.toggle('expanded');
+}
         </script>
 
 </body>
