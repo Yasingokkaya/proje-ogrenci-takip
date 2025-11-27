@@ -290,14 +290,85 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
     border-bottom-color: var(--theme-color);
 }
 
-/* Yazdırma Ayarları (A4) */
+/* ================================================= */
+/* KESİN ÇÖZÜM: ÇOKLU SAYFA YAZDIRMA AYARI           */
+/* ================================================= */
 @media print {
-    .sidebar, .modal, button, select, input, .modern-filter-card { display: none !important; }
-    .main-content-wrapper, .content, #sb-rapor-sonuc-container { margin: 0; padding: 0; width: 100%; display: block; }
-    .report-printable-a4 { border: none; box-shadow: none; width: 100%; }
-}
-/* --- MODAL BAŞLIK VE KAPATMA BUTONU DÜZELTMESİ --- */
+    /* 1. Sayfa Kenar Boşlukları */
+    @page {
+        size: A4;
+        margin: 10mm; /* Kenarlardan biraz boşluk bırak */
+    }
 
+    /* 2. Tüm Ana Kapsayıcıları Serbest Bırak (Kritik Nokta) */
+    html, body, .main-app, .main-content-wrapper, .content, .page-view, .card {
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important; /* Kaydırmayı iptal et, taşmasına izin ver */
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important; /* Flex/Grid yapısını boz ki aşağı aksın */
+        position: static !important; /* Sabitlemeyi kaldır */
+        background-color: white !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 3. Gereksiz Her Şeyi Gizle */
+    body * {
+        visibility: hidden; 
+    }
+
+    /* 4. Sadece Rapor Alanını Görünür Yap */
+    #sb-rapor-sonuc-container, 
+    #sb-rapor-sonuc-container * {
+        visibility: visible !important;
+    }
+
+    /* 5. Raporu Sayfanın En Başına Al */
+    #sb-rapor-sonuc-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    /* 6. Renkleri Zorla (Arka plan grafikleri) */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 7. Tablo ve İçerik Bölünmelerini Yönet */
+    /* Ders blokları mümkünse bölünmesin */
+    .report-details > div {
+        page-break-inside: avoid; 
+        margin-bottom: 20px;
+    }
+    
+    /* Tablo satırları ortadan bölünmesin */
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    
+    /* Tablo başlığı her yeni sayfada tekrarlansın */
+    thead {
+        display: table-header-group;
+    }
+    
+    /* Tablo altı boşluk */
+    tfoot {
+        display: table-footer-group;
+    }
+
+    /* 8. Gizlenecek Arayüz Elemanları */
+    .sidebar, .modal, button, select, input, .modern-filter-card, .page-header, .logout-wrapper, .logo-box { 
+        display: none !important; 
+    }
+}
 /* Modal Kutusu (Referans Noktası) */
 .modal-content {
     position: relative !important; /* X butonunu buna göre konumlandıracağız */
@@ -629,7 +700,7 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
         </div>
 </div>
 <div id="sb-reports-view" class="page-view">
-    <h2 style="margin-bottom: 20px;">Soru Bankası Karnesi</h2>
+    
 
     <div class="modern-filter-card">
         <div class="filter-grid" style="grid-template-columns: 2fr 2fr 1fr 1fr auto auto;"> 
@@ -1355,11 +1426,13 @@ window.showView = function(viewId) {
     if (viewId === 'daily-tracking-view') initGunlukTakipView();
 }
 
+
 /* ================================================= */
 /* YENİ: DİNAMİK VE GRAFİKLİ SORU BANKASI RAPORU     */
+/* (Hata Karnesi Yapısıyla Uyumlu)                    */
 /* ================================================= */
 
-// 1. Sayfa Açılış Ayarları
+// 1. Sayfa Açılış Ayarları (Dropdown Doldurma)
 async function initSoruBankasiRaporView() {
     const ogrenciSelect = document.getElementById('sb-rapor-ogrenci-secimi');
     const bankaSelect = document.getElementById('sb-rapor-banka-secimi');
@@ -1391,7 +1464,10 @@ async function initSoruBankasiRaporView() {
     document.getElementById('sb-print-btn').style.display = 'none';
 }
 
-// 2. Rapor Oluşturma ve Grafik Motoru
+/* ================================================= */
+/* YENİ: GÖRSELDEKİ RENK TEMASINA UYGUN RAPOR        */
+/* ================================================= */
+
 window.generateSoruBankasiRaporu = async function() {
     const ogrenciId = document.getElementById('sb-rapor-ogrenci-secimi').value;
     const bankaId = document.getElementById('sb-rapor-banka-secimi').value;
@@ -1402,7 +1478,7 @@ window.generateSoruBankasiRaporu = async function() {
 
     if (!ogrenciId) { alert("Lütfen bir öğrenci seçiniz."); return; }
     
-    container.innerHTML = "<div style='text-align:center; padding:40px;'><i class='fa-solid fa-spinner fa-spin' style='font-size:2rem; color:var(--theme-color);'></i><br><br>Veriler analiz ediliyor...</div>";
+    container.innerHTML = "<div style='text-align:center; padding:40px;'><i class='fa-solid fa-spinner fa-spin' style='font-size:2rem; color:var(--theme-color);'></i><br><br>Rapor hazırlanıyor...</div>";
     printBtn.style.display = 'none';
 
     // Veri Çekme
@@ -1435,14 +1511,36 @@ window.generateSoruBankasiRaporu = async function() {
         veriVar = true;
 
         if (!dersPerformanslari[sonuc.dersAdi]) {
-            dersPerformanslari[sonuc.dersAdi] = [];
+            dersPerformanslari[sonuc.dersAdi] = { 
+                konular: {}, 
+                toplamSoru: 0, 
+                toplamDogru: 0,
+                toplamYanlis: 0,
+                toplamBos: 0
+            };
         }
         
         sonuc.konuSonuclari.forEach(konu => {
+            const konuAdi = konu.konuAdi;
+            if (!dersPerformanslari[sonuc.dersAdi].konular[konuAdi]) {
+                dersPerformanslari[sonuc.dersAdi].konular[konuAdi] = { D: 0, Y: 0, B: 0, sebep: '', uniteAdi: konu.uniteAdi };
+            }
+            const stats = dersPerformanslari[sonuc.dersAdi].konular[konuAdi];
+            stats.D += konu.dogru || 0;
+            stats.Y += konu.yanlis || 0;
+            stats.B += konu.bos || 0;
+            if(konu.hataSebebi) stats.sebep = konu.hataSebebi;
+
+            // Genel toplamlar
             toplamDogru += konu.dogru || 0;
             toplamYanlis += konu.yanlis || 0;
             toplamBos += konu.bos || 0;
-            dersPerformanslari[sonuc.dersAdi].push(konu);
+            
+            // Ders toplamları
+            dersPerformanslari[sonuc.dersAdi].toplamDogru += konu.dogru || 0;
+            dersPerformanslari[sonuc.dersAdi].toplamYanlis += konu.yanlis || 0;
+            dersPerformanslari[sonuc.dersAdi].toplamBos += konu.bos || 0;
+            dersPerformanslari[sonuc.dersAdi].toplamSoru += (konu.dogru||0) + (konu.yanlis||0) + (konu.bos||0);
         });
     });
 
@@ -1454,109 +1552,108 @@ window.generateSoruBankasiRaporu = async function() {
     const toplamSoru = toplamDogru + toplamYanlis + toplamBos;
     const genelBasari = toplamSoru > 0 ? Math.round((toplamDogru / toplamSoru) * 100) : 0;
     const ogrenciAdi = document.getElementById('sb-rapor-ogrenci-secimi').options[document.getElementById('sb-rapor-ogrenci-secimi').selectedIndex].text;
-    const bankaAdi = bankaId ? document.getElementById('sb-rapor-banka-secimi').options[document.getElementById('sb-rapor-banka-secimi').selectedIndex].text : "Genel Performans Raporu";
+    const bankaAdi = bankaId ? document.getElementById('sb-rapor-banka-secimi').options[document.getElementById('sb-rapor-banka-secimi').selectedIndex].text : "Tüm Soru Bankaları";
+    const tarihStr = new Date().toLocaleDateString('tr-TR');
 
-    // --- HTML ÇIKTISI OLUŞTURMA ---
+    // --- RAPOR HTML OLUŞTURMA ---
     let reportHTML = `
-    <div class="report-printable-a4">
-        <div class="report-header" style="border-bottom: 2px solid var(--theme-color); padding-bottom: 15px; margin-bottom: 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:end;">
-                <div>
-                    <h2 style="margin:0; color:var(--text-main); font-size:1.8rem;">Soru Bankası Analiz Karnesi</h2>
-                    <p style="margin:5px 0 0 0; color:var(--text-muted);">${bankaAdi}</p>
-                </div>
-                <div style="text-align:right;">
-                    <h3 style="margin:0; color:var(--theme-color);">${ogrenciAdi}</h3>
-                    <small>${new Date().toLocaleDateString('tr-TR')}</small>
-                </div>
+    <div class="report-printable-a4" style="font-family: 'Segoe UI', sans-serif; color: #333;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; margin-bottom: 25px;">
+            <div>
+                <h1 style="margin:0; font-size: 1.8rem; color: #1f2937; font-weight: 800;">Soru Bankası Gelişim Raporu</h1>
+                <p style="margin:5px 0 0 0; color: #6b7280; font-size: 0.95rem;">${bankaAdi}</p>
+            </div>
+            <div style="text-align: right; font-weight: 600; font-size: 0.9rem;">
+                <div>${ogrenciAdi}</div>
+                <div>${tarihStr}</div>
             </div>
         </div>
 
-        <div class="summary-card" style="background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 6px rgba(0,0,0,0.05); margin-bottom:30px; display:grid; grid-template-columns: repeat(5, 1fr); gap:15px; text-align:center;">
-            <div style="border-right:1px solid #eee;">
-                <div style="font-size:2rem; font-weight:bold; color:var(--text-main);">${toplamSoru}</div>
-                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Toplam Soru</div>
-            </div>
-            <div style="border-right:1px solid #eee;">
-                <div style="font-size:2rem; font-weight:bold; color:var(--success-color);">${toplamDogru}</div>
-                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Doğru</div>
-            </div>
-            <div style="border-right:1px solid #eee;">
-                <div style="font-size:2rem; font-weight:bold; color:var(--danger-color);">${toplamYanlis}</div>
-                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Yanlış</div>
-            </div>
-            <div style="border-right:1px solid #eee;">
-                <div style="font-size:2rem; font-weight:bold; color:#f59e0b;">${toplamBos}</div>
-                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Boş</div>
-            </div>
-            <div>
-                <div style="font-size:2rem; font-weight:bold; color:var(--theme-color);">%${genelBasari}</div>
-                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Genel Başarı</div>
+        <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 30px; border-left: 6px solid #4f46e5; display:flex; flex-direction:column; gap:15px;">
+            <h3 style="margin:0; color:#374151; font-size:1.1rem;">Genel Performans Özeti</h3>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+                <div style="background:#f9fafb; padding:15px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#0ea5e9;">${toplamSoru}</div>
+                    <div style="font-size:0.8rem; color:#6b7280;">Çözülen Soru</div>
+                </div>
+                <div style="background:#f9fafb; padding:15px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#10b981;">${toplamDogru}</div>
+                    <div style="font-size:0.8rem; color:#6b7280;">Doğru</div>
+                </div>
+                <div style="background:#f9fafb; padding:15px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#ef4444;">${toplamYanlis}</div>
+                    <div style="font-size:0.8rem; color:#6b7280;">Yanlış</div>
+                </div>
+                <div style="background:#f9fafb; padding:15px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#f59e0b;">${toplamBos}</div>
+                    <div style="font-size:0.8rem; color:#6b7280;">Boş</div>
+                </div>
+                <div style="background:#f0fdf4; padding:15px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#7c3aed;">%${genelBasari}</div>
+                    <div style="font-size:0.8rem; color:#6b7280;">Genel Başarı</div>
+                </div>
             </div>
         </div>
         
         <div class="report-details">`;
 
+    // Dersleri Listele
     for (const dersAdi in dersPerformanslari) {
-        const konular = dersPerformanslari[dersAdi];
-        let dDogru = 0, dToplam = 0;
-        konular.forEach(k => {
-            dDogru += k.dogru || 0;
-            dToplam += (k.dogru || 0) + (k.yanlis || 0) + (k.bos || 0);
-        });
-        const dBasari = dToplam > 0 ? Math.round((dDogru / dToplam) * 100) : 0;
-        
-        // Başarı Rengi Belirle
-        let progressColor = '#ef4444'; // Kırmızı
-        if(dBasari >= 50) progressColor = '#f59e0b'; // Turuncu
-        if(dBasari >= 75) progressColor = '#10b981'; // Yeşil
+        const dersData = dersPerformanslari[dersAdi];
+        const dBasari = dersData.toplamSoru > 0 ? Math.round((dersData.toplamDogru / dersData.toplamSoru) * 100) : 0;
 
         reportHTML += `
         <div style="margin-bottom: 30px; break-inside: avoid;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main);">${dersAdi}</h3>
-                <span style="font-weight:bold; color:${progressColor};">%${dBasari} Başarı</span>
+            
+            <div style="background-color: #f1f5f9; color: #1e293b; padding: 12px 20px; border-radius: 8px 8px 0 0; display:flex; justify-content:space-between; align-items:center; border: 1px solid #e2e8f0; border-bottom: none;">
+                <h3 style="margin:0; font-size:1.1rem; font-weight:700;">${dersAdi}</h3>
+                <span style="font-weight:bold; color:#334155;">Başarı: %${dBasari}</span>
             </div>
             
-            <div style="height:10px; width:100%; background:#f1f5f9; border-radius:5px; overflow:hidden; margin-bottom:15px;">
-                <div style="height:100%; width:${dBasari}%; background:${progressColor};"></div>
-            </div>
-
-            <table style="width:100%; border-collapse:collapse; font-size: 0.9em; background:white; border:1px solid #e2e8f0;">
-                <thead style="background: #f8fafc;">
-                    <tr style="border-bottom: 2px solid #e2e8f0;">
-                        <th style="padding:10px; text-align:left;">Konu / Ünite</th>
-                        <th style="padding:10px; text-align:center; width:60px;">Soru</th>
-                        <th style="padding:10px; text-align:center; width:60px;">D</th>
-                        <th style="padding:10px; text-align:center; width:60px;">Y</th>
-                        <th style="padding:10px; text-align:center; width:60px;">B</th>
-                        <th style="padding:10px; text-align:left;">Hata Sebebi</th>
+            <table style="width:100%; border-collapse:collapse; font-size: 0.9em; background:white; border: 1px solid #e2e8f0;">
+                <thead style="background: #1e293b; color: white;">
+                    <tr>
+                        <th style="padding:10px 15px; text-align:left; border:none; font-weight:600;">Ünite / Konu</th>
+                        <th style="padding:10px; text-align:center; width:60px; border:none;">Soru</th>
+                        <th style="padding:10px; text-align:center; width:50px; border:none;">D</th>
+                        <th style="padding:10px; text-align:center; width:50px; border:none;">Y</th>
+                        <th style="padding:10px; text-align:center; width:50px; border:none;">B</th>
+                        <th style="padding:10px 15px; text-align:left; border:none;">Hata Sebebi</th>
                     </tr>
                 </thead>
                 <tbody>`;
         
-        konular.forEach(konu => {
-            const hataText = konu.hataSebebi ? `<span style="color:var(--danger-color); font-weight:600;">${konu.hataSebebi}</span>` : '-';
-            const konuBaslik = (konu.uniteAdi && konu.testAdi) 
-                             ? `<span style="color:#64748b; font-size:0.85em;">${konu.uniteAdi}</span><br><strong>${konu.konuAdi}</strong>`
-                             : `<strong>${konu.konuAdi}</strong>`;
+        let rowCount = 0;
+        for (const konuAdi in dersData.konular) {
+            const konu = dersData.konular[konuAdi];
+            const toplam = konu.D + konu.Y + konu.B;
+            const hataText = konu.sebep ? `<span style="color:#ef4444; font-weight:600;">${konu.sebep}</span>` : '-';
+            const rowBg = rowCount % 2 === 0 ? '#ffffff' : '#f8fafc'; // Zebra deseni (Beyaz / Çok açık gri)
+
+            const konuGosterim = konu.uniteAdi 
+                               ? `<div style="font-size:0.8em; opacity:0.7; margin-bottom:2px;">${konu.uniteAdi}</div><div style="font-weight:600;">${konuAdi}</div>`
+                               : `<span style="font-weight:600;">${konuAdi}</span>`;
 
             reportHTML += `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding:10px;">${konuBaslik}</td>
-                <td style="text-align:center;">${(konu.dogru||0)+(konu.yanlis||0)+(konu.bos||0)}</td>
-                <td style="text-align:center; color:var(--success-color); font-weight:bold;">${konu.dogru||0}</td>
-                <td style="text-align:center; color:var(--danger-color); font-weight:bold;">${konu.yanlis||0}</td>
-                <td style="text-align:center; color:#f59e0b;">${konu.bos||0}</td>
-                <td style="padding:10px;">${hataText}</td>
+            <tr style="background-color: ${rowBg}; border-bottom: 1px solid #e5e7eb;">
+                <td style="padding:10px 15px; color:#374151;">${konuGosterim}</td>
+                <td style="text-align:center; font-weight:600;">${toplam}</td>
+                <td style="text-align:center; color:#10b981; font-weight:bold;">${konu.D}</td>
+                <td style="text-align:center; color:#ef4444; font-weight:bold;">${konu.Y}</td>
+                <td style="text-align:center; color:#f59e0b;">${konu.B}</td>
+                <td style="padding:10px 15px;">${hataText}</td>
             </tr>`;
-        });
+            rowCount++;
+        }
         reportHTML += `</tbody></table></div>`;
     }
 
     reportHTML += `</div></div>`;
     container.innerHTML = reportHTML;
-    printBtn.style.display = 'inline-block';
+    
+    // Butonu göster
+    printBtn.style.display = 'flex'; 
 }
 
 // 3. Yazdırma Fonksiyonu
@@ -1881,103 +1978,198 @@ async function initReportsView() {
 window.printReport = function() {
     window.print();
 }
+/* ================================================= */
+/* YENİ: DENEME SINAVI ANALİZ KARNESİ (TAM VERİ)     */
+/* ================================================= */
 
-// GÜNCELLENMİŞ: Yeni ve şık raporu oluşturan fonksiyon
 window.generateHataKarnesi = async function() {
     const ogrenciId = document.getElementById('rapor-ogrenci-secimi').value;
     const sinavId = document.getElementById('rapor-sinav-secimi').value;
     const container = document.getElementById('rapor-sonuc-container');
     const printButton = document.getElementById('print-report-button');
     
-    container.innerHTML = '<p>Rapor oluşturuluyor, lütfen bekleyiniz...</p>';
-    printButton.style.display = 'none'; // Butonu gizle
+    container.innerHTML = "<div style='text-align:center; padding:40px;'><i class='fa-solid fa-spinner fa-spin' style='font-size:2rem; color:var(--theme-color);'></i><br><br>Analiz yapılıyor...</div>";
+    printButton.style.display = 'none';
 
     if (!ogrenciId || !sinavId) {
-        alert("Lütfen bir öğrenci ve bir sınav seçiniz.");
-        container.innerHTML = '<p>Raporu görmek için lütfen öğrenci ve sınav seçip "Rapor Oluştur" butonuna basınız.</p>';
+        container.innerHTML = '<div class="card" style="text-align:center; padding:20px;">Lütfen öğrenci ve sınav seçimi yapınız.</div>';
         return;
     }
 
     const ogrenciAdi = document.getElementById('rapor-ogrenci-secimi').options[document.getElementById('rapor-ogrenci-secimi').selectedIndex].text;
     const sinavAdi = document.getElementById('rapor-sinav-secimi').options[document.getElementById('rapor-sinav-secimi').selectedIndex].text;
 
+    // Sonucu Çek
     const q = query(collection(db, "denemeSinaviSonuclari"),
         where("ogrenciId", "==", ogrenciId),
         where("denemeSinaviId", "==", sinavId)
     );
+    const sonucSnapshot = await getDocs(q);
     
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-        container.innerHTML = '<p>Seçilen öğrenci için bu sınava ait sonuç bulunamadı.</p>';
+    if (sonucSnapshot.empty) {
+        container.innerHTML = '<div class="card" style="text-align:center; padding:20px;">Kayıt bulunamadı.</div>';
         return;
     }
     
-    const sonucData = querySnapshot.docs[0].data();
-    const hatalar = sonucData.detayliSonuclar.filter(s => s.durum === 'yanlis');
-    const toplamHata = hatalar.length;
+    // En son girilen sonucu al
+    const sonucData = sonucSnapshot.docs[sonucSnapshot.docs.length - 1].data();
+    const detaylar = sonucData.detayliSonuclar || [];
+    const tarihStr = sonucData.girisTarihi ? sonucData.girisTarihi.toDate().toLocaleDateString('tr-TR') : new Date().toLocaleDateString('tr-TR');
+    
+    // Verileri Analiz Et
+    let dersAnalizi = {}; 
 
-    // Verileri analiz et
-    const konuAnalizi = {};
-    const sebepAnalizi = {};
-    hatalar.forEach(hata => {
-        konuAnalizi[hata.konu] = (konuAnalizi[hata.konu] || 0) + 1;
-        sebepAnalizi[hata.hataSebebi] = (sebepAnalizi[hata.hataSebebi] || 0) + 1;
-    });
+    if (detaylar.length > 0) {
+        detaylar.forEach(item => {
+            const ders = item.dersAdi;
+            const konu = item.konu || "Genel"; 
+            
+            if (!dersAnalizi[ders]) {
+                dersAnalizi[ders] = { totalSoru: 0, totalD: 0, totalY: 0, totalB: 0, konular: {} };
+            }
+            if (!dersAnalizi[ders].konular[konu]) {
+                dersAnalizi[ders].konular[konu] = { D: 0, Y: 0, B: 0, sebep: '' };
+            }
 
-    // --- Yeni ve Şık HTML Raporunu Oluştur ---
-    let reportHTML = `<div class="report-printable-a4">
-        <div class="report-header">
-            <h2>Hata Karnesi</h2>
-            <div class="info">
-                <p><strong>Öğrenci:</strong> ${ogrenciAdi}</p>
-                <p><strong>Sınav:</strong> ${sinavAdi}</p>
-                <p><strong>Tarih:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+            const stats = dersAnalizi[ders].konular[konu];
+            
+            // Doğru/Yanlış Sayımı
+            if (item.durum === 'dogru') { 
+                stats.D++; 
+                dersAnalizi[ders].totalD++; 
+            } else if (item.durum === 'yanlis') { 
+                stats.Y++; 
+                dersAnalizi[ders].totalY++;
+                if(item.hataSebebi) stats.sebep = item.hataSebebi;
+            } else { 
+                stats.B++; 
+                dersAnalizi[ders].totalB++; 
+            }
+            
+            dersAnalizi[ders].totalSoru++;
+        });
+    }
+    
+    // Genel Toplamları Hesapla
+    let genD = 0, genY = 0, genB = 0;
+    for (const d in dersAnalizi) {
+        genD += dersAnalizi[d].totalD;
+        genY += dersAnalizi[d].totalY;
+        genB += dersAnalizi[d].totalB;
+    }
+    
+    const genTop = genD + genY + genB;
+    const genNet = genD - (genY / 4);
+    const genBasari = genTop > 0 ? Math.round((genNet / genTop) * 100) : 0;
+    
+    // --- HTML ÇIKTISI ---
+    let reportHTML = `
+    <div class="report-printable-a4" style="font-family: 'Segoe UI', sans-serif; color: #333;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; margin-bottom: 25px;">
+            <div>
+                <h1 style="margin:0; font-size: 1.8rem; color: #1f2937; font-weight: 800;">Deneme Sınavı Analiz Karnesi</h1>
+                <p style="margin:5px 0 0 0; color: #6b7280; font-size: 0.95rem;">${sinavAdi}</p>
+            </div>
+            <div style="text-align: right; font-weight: 600; font-size: 0.9rem;">
+                <div>${ogrenciAdi}</div>
+                <div>${tarihStr}</div>
+            </div>
+        </div>
+
+        <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 30px; border-left: 6px solid #4f46e5; display:flex; flex-direction:column; gap:15px;">
+            <h3 style="margin:0; color:#374151; font-size:1.1rem;">Sınav Genel Özeti</h3>
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#0ea5e9;">${genTop}</div>
+                    <div style="font-size:0.75rem; color:#6b7280;">TOPLAM</div>
+                </div>
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#10b981;">${genD}</div>
+                    <div style="font-size:0.75rem; color:#6b7280;">DOĞRU</div>
+                </div>
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#ef4444;">${genY}</div>
+                    <div style="font-size:0.75rem; color:#6b7280;">YANLIŞ</div>
+                </div>
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#f59e0b;">${genB}</div>
+                    <div style="font-size:0.75rem; color:#6b7280;">BOŞ</div>
+                </div>
+                <div style="background:#f0fdf4; padding:10px; border-radius:8px; text-align:center; border: 1px solid #bbf7d0;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#15803d;">${genNet.toFixed(2)}</div>
+                    <div style="font-size:0.75rem; color:#15803d;">NET</div>
+                </div>
+                <div style="background:#f5f3ff; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#7c3aed;">%${genBasari}</div>
+                    <div style="font-size:0.75rem; color:#6b7280;">BAŞARI</div>
+                </div>
             </div>
         </div>
         
-        <div class="report-summary">
-            <div class="summary-card">
-                <h3>Hata Sebebi Dağılımı</h3>`;
-    let colorIndex = 1;
-    for (const sebep in sebepAnalizi) {
-        const yuzde = Math.round((sebepAnalizi[sebep] / toplamHata) * 100);
-        reportHTML += `<div class="bar-chart-item">
-            <span class="bar-label">${sebep}</span>
-            <div class="bar-wrapper">
-                <div class="bar color-${colorIndex}" style="width: ${yuzde}%;">${sebepAnalizi[sebep]}</div>
-            </div>
-        </div>`;
-        colorIndex = (colorIndex % 5) + 1;
-    }
-    reportHTML += `</div><div class="summary-card">
-                <h3>Konulara Göre Hata Sayısı</h3>`;
-    colorIndex = 1;
-    for (const konu in konuAnalizi) {
-        const yuzde = Math.round((konuAnalizi[konu] / toplamHata) * 100);
-        reportHTML += `<div class="bar-chart-item">
-            <span class="bar-label">${konu}</span>
-            <div class="bar-wrapper">
-                <div class="bar color-${colorIndex}" style="width: ${yuzde}%;">${konuAnalizi[konu]}</div>
-            </div>
-        </div>`;
-        colorIndex = (colorIndex % 5) + 1;
-    }
-    reportHTML += `</div></div>
+        <div class="report-details">`;
+
+    for (const dersAdi in dersAnalizi) {
+        const stats = dersAnalizi[dersAdi];
+        const dNet = stats.totalD - (stats.totalY / 4);
+        const dBasari = stats.totalSoru > 0 ? Math.round((dNet / stats.totalSoru) * 100) : 0;
         
-        <div class="report-details">
-            <h3>Tüm Hataların Listesi</h3>
-            <table>
-                <thead>
-                    <tr><th>Ders</th><th>Konu</th><th>Soru No</th><th>Hata Sebebi</th></tr>
+        // Başarı Rengi
+        let progressColor = '#ef4444'; 
+        if(dBasari >= 50) progressColor = '#f59e0b'; 
+        if(dBasari >= 75) progressColor = '#10b981'; 
+
+        reportHTML += `
+        <div style="margin-bottom: 30px; page-break-inside: avoid;">
+            <div style="background-color: #f1f5f9; padding: 12px 20px; border-radius: 8px 8px 0 0; display:flex; justify-content:space-between; align-items:center; border: 1px solid #e2e8f0; border-bottom: none;">
+                <h3 style="margin:0; font-size:1.1rem; color:#1f2937; font-weight:700;">${dersAdi}</h3>
+                <div style="font-size:0.9rem;">
+                    <span style="margin-right:10px; color:#15803d; font-weight:600;">Net: ${dNet.toFixed(2)}</span>
+                    <span style="font-weight:bold; color:#4b5563;">%${dBasari}</span>
+                </div>
+            </div>
+            
+            <div style="height:8px; width:100%; background:#e5e7eb; border-bottom: 1px solid #e2e8f0;">
+                <div style="height:100%; width:${Math.max(0, dBasari)}%; background:${progressColor};"></div>
+            </div>
+
+            <table style="width:100%; border-collapse:collapse; font-size: 0.9em; background:white; border: 1px solid #e2e8f0;">
+                <thead style="background: #1e293b; color: white;">
+                    <tr>
+                        <th style="padding:10px 15px; text-align:left; border:none; width: 40%;">Konu</th>
+                        <th style="padding:10px; text-align:center; border:none;">Soru</th>
+                        <th style="padding:10px; text-align:center; border:none;">D</th>
+                        <th style="padding:10px; text-align:center; border:none;">Y</th>
+                        <th style="padding:10px; text-align:center; border:none;">B</th>
+                        <th style="padding:10px 15px; text-align:left; border:none;">Hata Sebebi</th>
+                    </tr>
                 </thead>
                 <tbody>`;
-    hatalar.forEach(hata => {
-        reportHTML += `<tr><td>${hata.dersAdi}</td><td>${hata.konu}</td><td>${hata.soruNo}</td><td>${hata.hataSebebi}</td></tr>`;
-    });
-    reportHTML += `</tbody></table></div></div>`;
+        
+        let rowCount = 0;
+        for (const konuAdi in stats.konular) {
+            const k = stats.konular[konuAdi];
+            const tSoru = k.D + k.Y + k.B;
+            const hataText = k.sebep ? `<span style="color:#ef4444; font-weight:600;">${k.sebep}</span>` : '-';
+            const rowBg = rowCount % 2 === 0 ? '#ffffff' : '#f8fafc';
 
+            reportHTML += `
+            <tr style="background-color: ${rowBg}; border-bottom: 1px solid #e5e7eb;">
+                <td style="padding:10px 15px; color:#374151; font-weight:600;">${konuAdi}</td>
+                <td style="text-align:center; font-weight:600;">${tSoru}</td>
+                <td style="text-align:center; color:#10b981; font-weight:bold;">${k.D}</td>
+                <td style="text-align:center; color:#ef4444; font-weight:bold;">${k.Y}</td>
+                <td style="text-align:center; color:#f59e0b;">${k.B}</td>
+                <td style="padding:10px 15px;">${hataText}</td>
+            </tr>`;
+            rowCount++;
+        }
+        reportHTML += `</tbody></table></div>`;
+    }
+
+    reportHTML += `</div></div>`;
     container.innerHTML = reportHTML;
-    printButton.style.display = 'inline-block'; // Rapor hazır, yazdır butonunu göster
+    printButton.style.display = 'inline-block';
 }
 
 // GÜNCELLENMİŞ: Yeni ve detaylı veriyi kaydeden handleAddDenemeSinavi fonksiyonu
@@ -2907,8 +3099,10 @@ window.showDetayliSonucGirisEkrani = async function(sinavId) {
         });
     });
 }
-
-// YENİ: Detaylı sonuçları Firestore'a kaydeden fonksiyon
+/* ================================================= */
+/* YENİ: TÜM SONUÇLARI EKSİKSİZ KAYDEDEN FONKSİYON   */
+/* (Doğru, Yanlış ve Boş hepsini saklar)             */
+/* ================================================= */
 window.handleSaveDetayliSonuclar = async function() {
     const ogrenciId = document.getElementById('detayli-sonuc-ogrenci-secimi').value;
     const sinavId = window.currentSinavIdForEntry;
@@ -2921,37 +3115,51 @@ window.handleSaveDetayliSonuclar = async function() {
     const sonuclar = [];
     let toplamDogru = 0, toplamYanlis = 0, toplamBos = 0;
 
-    document.querySelectorAll('.soru-item').forEach(item => {
-        const durum = item.querySelector('input[type="radio"]:checked').value;
-        if (durum === 'yanlis' || durum === 'bos') {
+    // Tüm soru satırlarını gez
+    const soruSatirlari = document.querySelectorAll('.soru-item');
+    
+    for (const item of soruSatirlari) {
+        // Hangi şıkkın işaretlendiğini bul (Doğru/Yanlış/Boş)
+        const durumInput = item.querySelector('input[type="radio"]:checked');
+        const durum = durumInput ? durumInput.value : 'bos'; 
+        
+        let hataSebebi = '';
+
+        // Eğer Yanlış ise hata sebebini al
+        if (durum === 'yanlis') {
             const hataSebebiSelect = item.querySelector('.hata-sebebi-select');
-            const hataSebebi = durum === 'yanlis' ? hataSebebiSelect.value : 'Süre Yetmedi / Boş';
-            if (durum === 'yanlis' && !hataSebebi) {
-                // Hata kontrolü: eğer yanlış ise sebep seçilmeli
+            hataSebebi = hataSebebiSelect.value;
+            
+            if (!hataSebebi) {
                 alert(`Lütfen ${item.dataset.ders} dersi ${item.dataset.soruno}. soru için hata sebebini seçiniz.`);
-                throw new Error("Hata sebebi seçilmedi");
+                return; // Kaydetmeyi durdur
             }
-            sonuclar.push({
-                dersAdi: item.dataset.ders,
-                soruNo: parseInt(item.dataset.soruno),
-                konu: item.dataset.konu,
-                durum: durum,
-                hataSebebi: hataSebebi
-            });
+        } else if (durum === 'bos') {
+            hataSebebi = 'Boş Bırakıldı';
         }
-        // Toplam D/Y/B hesabı
+
+        // İstatistikleri topla
         if(durum === 'dogru') toplamDogru++;
         else if(durum === 'yanlis') toplamYanlis++;
         else if(durum === 'bos') toplamBos++;
-    });
+
+        // Listeye ekle (ARTIK DOĞRULARI DA EKLİYORUZ)
+        sonuclar.push({
+            dersAdi: item.dataset.ders,
+            soruNo: parseInt(item.dataset.soruno),
+            konu: item.dataset.konu,
+            durum: durum, // 'dogru', 'yanlis' veya 'bos'
+            hataSebebi: hataSebebi
+        });
+    }
 
     const sonucData = {
         ogrenciId,
         denemeSinaviId: sinavId,
         kurumId: currentUserProfile.kurumId,
         girisTarihi: new Date(),
-        detayliSonuclar: sonuclar, // Detaylı yanlış ve boş listesi
-        ozet: { // Genel özet
+        detayliSonuclar: sonuclar, // Tüm listeyi kaydet
+        ozet: { 
             dogru: toplamDogru,
             yanlis: toplamYanlis,
             bos: toplamBos
@@ -2960,13 +3168,11 @@ window.handleSaveDetayliSonuclar = async function() {
 
     try {
         await addDoc(collection(db, "denemeSinaviSonuclari"), sonucData);
-        alert('Sonuçlar başarıyla kaydedildi!');
+        alert('Tüm sonuçlar (Doğru/Yanlış/Boş) başarıyla kaydedildi!');
         showView('exams-view');
     } catch (error) {
-        console.error("Detaylı sonuçlar kaydedilirken hata: ", error);
-        if (error.message !== "Hata sebebi seçilmedi") {
-            alert('Sonuçlar kaydedilirken bir hata oluştu.');
-        }
+        console.error("Kaydetme hatası: ", error);
+        alert('Sonuçlar kaydedilirken bir hata oluştu.');
     }
 }
         
