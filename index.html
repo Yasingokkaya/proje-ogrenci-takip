@@ -3,1023 +3,506 @@
 <head>
     <meta charset="UTF-8">
     <title>Öğrenci Takip Sistemi</title>
-    <style>
-    /* Google'dan profesyonel bir fontu projeye dahil ediyoruz */
+    <style> /* <--- BU ETİKETİ EKLEYİN */
     @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+/* İkonlar için FontAwesome (Yardımcı elemanlar için kalsın) */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
 
-   :root {
-    /* --- MODERN SAAS PALETİ --- */
-    --sidebar-bg: #1e293b;       /* Slate 800: Modern Koyu Gri/Mavi */
-    --sidebar-text: #94a3b8;     /* Slate 400: Göz yormayan gri yazı */
-    --sidebar-active: #334155;   /* Slate 700: Seçili menü arkaplanı */
-    --sidebar-accent: #38bdf8;   /* Sky 400: Modern Mavi İkonlar */
+:root {
+    /* --- DİNAMİK DEĞİŞKENLER (JS ile değişecek) --- */
+    --theme-color: #3b82f6;       /* Varsayılan: Mavi */
+    --theme-light: #eff6ff;       /* Varsayılan: Açık Mavi Zemin */
 
-    --main-bg: #f8fafc;          /* Slate 50: Çok açık gri zemin (ferahlık için) */
-    --card-bg: #ffffff;          /* Kartlar tam beyaz */
-    --text-dark: #334155;        /* Slate 700: Yumuşak siyah yazı */
-    --text-muted: #64748b;       /* Slate 500: Açıklama yazıları */
-    --border-color: #e2e8f0;     /* Slate 200: Çok hafif çerçeveler */
-
-    /* Butonlar */
-    --primary-button-bg: #4f46e5;    /* Indigo 600: Modern Mor-Mavi */
-    --primary-button-hover: #4338ca; /* Indigo 700 */
-    --secondary-button-bg: #0ea5e9;  /* Sky 500: Canlı Mavi */
-    --danger-color: #ef4444;         /* Red 500: Modern Kırmızı */
-    --success-color: #10b981;        /* Emerald 500: Modern Yeşil */
+    /* --- SABİT RENKLER (YENİ TASARIM) --- */
+    --sidebar-bg: #ffffff;        /* BEYAZ MENÜ */
+    --page-bg: #f8fafc;           /* Açık Gri Sayfa */
+    --text-main: #334155;         /* Ana Yazı (Koyu Gri) */
+    --text-muted: #64748b;        /* Silik Yazı */
+    --border-color: #e2e8f0;      /* Kenarlıklar */
     
-    /* Eski değişkenlerin uyumluluğu için */
-    --text-light: #f1f5f9;       
-    --accent-color: #38bdf8;
+    /* Fonksiyonel Renkler (Eski sistemle uyumlu) */
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+    --card-bg: #ffffff;
+    
+    /* Buton değişkenlerini dinamik renge bağlıyoruz */
+    --primary-button-bg: var(--theme-color);
+    --primary-button-hover: var(--theme-color); /* Hover için JS ile koyultma yapılabilir veya aynı kalabilir */
+    --secondary-button-bg: #475569; /* Gri butonlar */
+    
+    /* Eski kod uyumluluğu */
+    --text-dark: #334155;
+    --text-light: #334155; /* Sidebar yazı rengi artık koyu */
 }
-/* Sekmelerin bulunduğu genel alan (Buton Kapsayıcısı) */
-.modal-tabs {
+
+/* Genel Ayarlar */
+* { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--page-bg);
+    color: var(--text-main);
+    overflow-x: hidden;
+    height: 100vh; /* Ekranı kapla */
+    display: flex; /* Sidebar ve içeriği yan yana koy */
+}
+
+/* --- YENİ SIDEBAR TASARIMI --- */
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-main);
     display: flex;
-    justify-content: center; /* Butonları ortala */
-    gap: 10px;               /* Butonlar arasına boşluk ekle */
-    border-bottom: none;
-    margin-bottom: 25px;
-}
-
-/* DÜZELTİLMİŞ KOD */
-.tab-link {
-    padding: 12px 25px;
-    border: none;
-    background-color: #f1f3f5;  /* Pasif sekmeler için hafif gri arka plan */
-    color: var(--text-dark);    /* Yazı rengini KOYU yapıyoruz */
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;           /* Yazıyı biraz kalınlaştırdık */
-    margin-right: 5px;          /* Butonlar birbirine yapışmasın */
-    border-radius: 6px 6px 0 0; /* Üst köşeleri hafif yuvarlat */
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-}
-
-/* Farenin üzerine gelince */
-.tab-link:hover {
-    background-color: #e2e6ea;
-    color: var(--sidebar-bg);
-}
-
-/* Aktif (Seçili) Sekme Ayarları */
-.tab-link.active {
-    background-color: white;        /* Aktif olan beyaz olsun */
-    color: var(--primary-button-bg); /* Yazısı yeşil olsun */
-    font-weight: 700;
-    border-bottom: 3px solid var(--primary-button-bg); /* Alt çizgi */
-    border-top: 1px solid #eee;    /* İsteğe bağlı ince çerçeve */
-    border-left: 1px solid #eee;
-    border-right: 1px solid #eee;
-}
-
-/* Farenin üzerine gelindiğindeki stil */
-.tab-link:hover {
-    opacity: 0.9;
-}
-
-/* Aktif olan sekmenin stili */
-.tab-link.active {
-    opacity: 1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-
-/* ================================================= */
-/* YENİ: Modal Kaydet Butonu Stili                   */
-/* ================================================= */
-
-/* Formun içindeki ana kaydetme butonu */
-#addStudentForm button[type="submit"] {
-    width: 100%; /* Genişliği tam yap */
-    margin-top: 20px;
-    padding: 15px; /* Daha büyük ve dikkat çekici */
-    font-size: 18px;
-    background-color: var(--primary-button-bg);
-}
-    /* Genel Stiller */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-        font-family: 'Lato', sans-serif;
-        background-color: var(--main-bg);
-        color: var(--text-dark);
-        overflow-x: hidden;
-    }
-/* ================================================= */
-/* YENİ: Sınav Sonuç Giriş Tablosu Stilleri (Seçenek 1: Daraltılmış) */
-/* ================================================= */
-
-/* Tablonun genel hücre ayarları */
-#sonuc-giris-tablosu th,
-#sonuc-giris-tablosu td {
-    text-align: center;
-    vertical-align: middle;
-    /* Hücrelerin sağ ve sol iç boşluğunu azaltıyoruz */
-    padding: 8px 3px; 
-}
-
-/* Ders adları ve D-Y-B başlıklarının puntosunu küçültüyoruz */
-#sonuc-giris-tablosu th {
-    font-size: 13px;
-}
-
-#sonuc-giris-tablosu .sonuc-input {
-    width: 48px; 
-    padding: 8px 4px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-    -moz-appearance: textfield;
-    appearance: textfield;
-}
-
-/* Webkit tabanlı tarayıcılar için sayı oklarını gizle */
-#sonuc-giris-tablosu .sonuc-input::-webkit-outer-spin-button,
-#sonuc-giris-tablosu .sonuc-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Giriş alanına tıklandığında oluşacak stil */
-#sonuc-giris-tablosu .sonuc-input:focus {
-    outline: none;
-    border-color: var(--primary-button-bg);
-    box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.15);
-}
-    /* Giriş Ekranı */
-    .login-container { display: flex; align-items: center; justify-content: center; height: 100vh; }
-    .login-box { background: var(--card-bg); padding: 40px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); width: 380px; text-align: center; }
-    .login-box h1 { margin-bottom: 25px; }
-    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 16px; }
-    .login-box button { width: 100%; padding: 12px; background-color: var(--sidebar-bg); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 18px; font-weight: 700; }
-
-    /* Ana Uygulama Yapısı */
-    .main-app { display: none; height: 100vh; }
-    .sidebar { position: relative; width: 250px; background-color: var(--sidebar-bg); color: var(--text-light); display: flex; flex-direction: column; }
-    .sidebar h2 { text-align: center; padding: 25px 10px; font-size: 1.5em; background-color: rgba(0,0,0,0.1); }
-    .sidebar-menu { list-style: none; width: 100%; }
-    .sidebar-menu li a { display: flex; align-items: center; padding: 16px 25px; color: var(--text-light); text-decoration: none; transition: background-color 0.2s; border-left: 4px solid transparent; }
-    .sidebar-menu li a:hover { background-color: rgba(0,0,0,0.2); }
-    
-    .sidebar-menu i { margin-right: 15px; width: 22px; font-size: 1.2em; text-align: center; color: var(--accent-color); }
-    .sidebar-menu .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.2); }
-    .submenu { list-style: none; display: none; background-color: rgba(0,0,0,0.15); }
-    .submenu.active { display: block; }
-    .submenu li a { padding-left: 45px; }
-
-
-    .content { flex-grow: 1; padding: 40px; background-color: var(--main-bg); overflow-y: auto; }
-    .page-view { display: none; animation: fadeIn 0.4s; }
-    .page-view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .card { background-color: var(--card-bg); border-radius: 8px; padding: 30px; margin-top: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-    .page-view h2 { font-size: 2em; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-
-    button { padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; margin: 5px; transition: all 0.2s; border: none; color: white; }
-    button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-    .primary-button { background-color: var(--sidebar-bg); }
-    .secondary-button { background-color: var(--secondary-button-bg); }
-    .btn-danger { background-color: var(--danger-color); }
-    
-    input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 1em; }
-    
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
-    .modal-content { background-color: #fff; margin: 10% auto; padding: 30px; width: 80%; max-width: 700px; border-radius: 8px; position: relative; }
-    /* YENİ GENİŞ MODAL AYARI */
-.modal-content {
-    background-color: #fff;
-    margin: 3% auto;    /* Üstten boşluğu azalttık ki ekrana daha iyi sığsın */
-    padding: 30px;
-    width: 95%;         /* Ekranın %95'ini kaplasın */
-    max-width: 1100px;  /* Maksimum genişliği 1100 piksel yaptık (Bayağı geniş) */
-    border-radius: 12px;
-    position: relative;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); /* Biraz daha belirgin gölge */
-    display: flex;      /* İçeriği düzenli tutmak için */
     flex-direction: column;
-}
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-   
-    /* YAPIŞTIRILACAK YENİ VE TEMİZ KOD */
-
-/* Tabloyu taşıyan kutu */
-.student-list-container {
-    width: 100%;
-    display: block;
-    overflow-x: auto;
+    padding: 25px 15px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 100;
 }
 
-
-
-/* Hücre Genel Ayarları */
-#student-list-table th, 
-#student-list-table td {
-    padding: 15px 10px;
-    border-bottom: 1px solid var(--border-color);
-    text-align: left;
-    vertical-align: middle;
-}
-
-/* Başlık Görünümü */
-#student-list-table th {
-    background-color: #f8fafc;
-    color: #64748b;
+.sidebar h2 {
+    font-size: 1.2rem;
     font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    color: #0f172a;
+    margin-bottom: 30px;
+    padding-left: 10px;
+    border-bottom: none;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* --- KRİTİK AYARLAR (TABLOYU YAYAN KISIM) --- */
-
-/* 1. Sütun (Adı Soyadı): Genişliği "auto" yaparak tüm boşluğu buna veriyoruz */
-#student-list-table th:nth-child(1),
-#student-list-table td:nth-child(1) {
-    width: auto;
+/* Logo Kutusu */
+.logo-box {
+    width: 40px; height: 40px;
+    background-color: var(--theme-color);
+    color: white;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Diğer Sütunlar: "width: 1px" diyerek sadece içindeki yazı kadar yer kaplamaya zorluyoruz */
-#student-list-table th:nth-child(2),
-#student-list-table td:nth-child(2), /* Sınıfı */
-#student-list-table th:nth-child(3),
-#student-list-table td:nth-child(3), /* TC */
-#student-list-table th:nth-child(4),
-#student-list-table td:nth-child(4), /* Tarih */
-#student-list-table th:nth-child(5),
-#student-list-table td:nth-child(5) { /* İşlemler */
-    width: 1px;
-    white-space: nowrap; /* Yazıların alt satıra inmesini engelle */
+/* Menü Listesi */
+.sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0; }
+
+.sidebar-menu li a {
+    display: flex; align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
 }
 
-/* İşlemler sütununu ortala */
-#student-list-table th:last-child,
-#student-list-table td:last-child {
-    text-align: center;
+/* Resim İkonlar */
+.menu-icon {
+    width: 28px; height: auto;
+    margin-right: 15px;
+    display: block;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    transition: transform 0.2s ease;
 }
-    /* İşlemler Sütunu (Edit/Sil butonları) için Özel Ayar */
-    #student-list-table td:last-child, 
-    #student-list-table th:last-child {
-        text-align: center; /* Butonları ortala */
-        width: 140px;       /* Bu sütuna sabit genişlik ver */
+
+/* Hover Efekti */
+.sidebar-menu li > a:hover {
+    background-color: #f1f5f9;
+    color: var(--text-main);
+    transform: translateX(3px);
+}
+.sidebar-menu li > a:hover .menu-icon { transform: scale(1.15); }
+
+/* AKTİF MENÜ (Dinamik Renk) */
+.sidebar-menu li.active-menu-item > a,
+.sidebar-menu li.submenu-active > a {
+    background-color: var(--theme-light) !important;
+    color: var(--text-main) !important;
+    border-left-color: var(--theme-color) !important;
+}
+
+/* Alt Menü (Submenu) */
+.submenu {
+    list-style: none;
+    display: none;
+    background-color: #f8fafc; /* Hafif gri zemin */
+    margin-top: 5px;
+    border-radius: 8px;
+    padding: 5px 0;
+}
+.submenu.active { display: block; }
+.submenu li a {
+    padding-left: 50px; /* Girintili */
+    font-size: 0.9rem;
+    color: #64748b;
+}
+.submenu .menu-icon-small {
+    width: 18px; height: auto; margin-right: 10px; opacity: 0.7;
+}
+
+/* Çıkış Butonu */
+.logout { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color); }
+
+/* --- İÇERİK ALANI DÜZENİ --- */
+.main-content-wrapper {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+}
+.content {
+    padding: 40px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* --- DİNAMİK BAŞLIKLAR VE BUTONLAR --- */
+.page-view h2 {
+    font-size: 1.8rem; color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px; margin-bottom: 25px;
+    display: flex; align-items: center;
+}
+.page-view h2::before {
+    content: ''; display: inline-block; width: 8px; height: 32px;
+    background-color: var(--theme-color);
+    margin-right: 15px; border-radius: 4px;
+}
+
+.primary-button {
+    background-color: var(--theme-color) !important;
+    color: white; border: none; padding: 12px 25px; border-radius: 10px;
+    font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.primary-button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+/* --- DİĞER BİLEŞENLER (Kartlar, Tablolar, Modallar - Eski Koddan Uyarlandı) --- */
+.card, .ders-karti, .login-box, .modal-content {
+    background: #fff; border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    padding: 30px;
+}
+
+/* Tablolar */
+table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; }
+th { background-color: #f8fafc; color: #64748b; padding: 15px; text-align: left; border-bottom: 2px solid var(--border-color); font-weight: 700; }
+td { padding: 15px; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: middle; }
+
+/* EKRANI ORTALAYAN VE KAPLAYAN KOD */
+.login-container { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100vh; 
+    width: 100%;       /* Genişliği %100 yap */
+    background-color: #f1f5f9; 
+    
+    /* ÖNEMLİ KISIMLAR: */
+    position: fixed;   /* Sayfa akışından çıkar ve ekrana sabitle */
+    top: 0;
+    left: 0;
+    z-index: 9999;     /* Diğer her şeyin (sidebar vs.) üstünde dursun */
+}
+
+/* Modallar */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+/* --- YENİ VE TAM MODAL CONTENT KODU --- */
+.modal-content {
+    position: relative; /* Kapatma butonunu (X) içeri hapsetmek için ŞART */
+    background: #fff;   /* Arka plan beyaz */
+    border-radius: 16px; /* Yuvarlak köşeler */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Hafif gölge */
+    padding: 30px;      /* İç boşluk */
+    
+    /* Konumlandırma */
+    margin: 5% auto;
+    width: 90%;
+    max-width: 900px;
+    
+    /* Açılış Animasyonu */
+    animation: modalFadeIn 0.3s ease;
+}
+
+/* Animasyon Tanımı (Eğer yoksa bunu da ekleyin) */
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Form Elemanları */
+input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; background: #fff; }
+input:focus, select:focus { outline: none; border-color: var(--theme-color); box-shadow: 0 0 0 3px var(--theme-light); }
+/* --- FORM GRID (Kutucukları Yan Yana Dizer) --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Alanı iki eşit parçaya böl */
+    gap: 20px; /* Kutucuklar arasında 20px boşluk bırak */
+    margin-bottom: 15px; /* Alttan boşluk */
+}
+
+/* Mobil uyumluluk: Ekran daralınca alt alta geçsin */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Mobilde tek sütun yap */
     }
-    ul { list-style: none; padding: 0; }
-    #soru-bankalari-listesi li { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
-/* YENİ: Modal İçi Sekme (Tab) Stilleri */
+}
+
+/* Sekmeler (Tabs) */
+
+/* YENİ VE ORTALANMIŞ SEKMELER */
 .modal-tabs {
     display: flex;
+    justify-content: center; /* Sekmeleri ortalar */
+    gap: 15px;
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 25px;
 }
 
 .tab-link {
     padding: 12px 25px;
+    background: transparent;
     border: none;
-    background-color: transparent;
-    color: var(--text-light); /* Mevcut temanızdaki soluk yazı rengi */
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: -2px;
     border-bottom: 3px solid transparent;
     transition: all 0.3s ease;
+    margin-bottom: -2px;
 }
 
 .tab-link:hover {
-    background-color: rgba(0,0,0,0.05);
-    color: var(--primary-button-bg);
+    background-color: #f8fafc;
+    color: var(--theme-color);
 }
 
 .tab-link.active {
-    color: var(--primary-button-bg);
-    font-weight: 700;
-    border-bottom-color: var(--primary-button-bg);
+    color: var(--theme-color);
+    border-bottom-color: var(--theme-color);
 }
 
-.tab-content {
-    display: none; /* JavaScript ile gösterilecek */
-    animation: fadeIn 0.5s; /* Geçiş efekti */
+/* Yazdırma Ayarları (A4) */
+@media print {
+    .sidebar, .modal, button, select, input, .modern-filter-card { display: none !important; }
+    .main-content-wrapper, .content, #sb-rapor-sonuc-container { margin: 0; padding: 0; width: 100%; display: block; }
+    .report-printable-a4 { border: none; box-shadow: none; width: 100%; }
+}
+/* --- MODAL BAŞLIK VE KAPATMA BUTONU DÜZELTMESİ --- */
+
+/* Modal Kutusu (Referans Noktası) */
+.modal-content {
+    position: relative !important; /* X butonunu buna göre konumlandıracağız */
+    padding-top: 40px !important;  /* Üstten biraz boşluk bırak ki X butonu sıkışmasın */
 }
 
-/* Adres gibi çok satırlı inputların tam genişlikte olması için */
-#addStudentForm textarea {
+/* Başlık (Ortala) */
+.modal-content h2 {
+    text-align: center !important; /* Başlığı zorla ortala */
     width: 100%;
+    margin-bottom: 25px;
+    margin-top: 0;
+    color: var(--text-main);
 }
-/* ================================================= */
-/* YENİ: Liste İşlem Butonları Stilleri              */
-/* ================================================= */
+
+/* Kapatma Butonu (Sağ Üst Köşeye Sabitle) */
+.modal-close {
+    position: absolute !important; /* Serbest dolaşım */
+    top: 15px !important;          /* Üstten mesafe */
+    right: 20px !important;        /* Sağdan mesafe */
+    
+    /* Görünüm */
+    background: transparent !important; /* Arkadaki gri kutuyu kaldır */
+    border: none !important;            /* Çerçeveyi kaldır */
+    font-size: 2.5rem !important;       /* Boyutu büyüt */
+    line-height: 1 !important;          /* Satır yüksekliğini sıfırla */
+    color: #94a3b8 !important;          /* Varsayılan gri renk */
+    cursor: pointer;
+    transition: all 0.2s ease;          /* Yumuşak renk geçişi */
+    z-index: 100;                       /* En üstte dursun */
+    padding: 0 !important;
+    width: auto !important;
+}
+
+/* Üzerine Gelince (Hover) - Kırmızı Olsun ve Dönsün */
+.modal-close:hover {
+    color: var(--danger-color) !important; /* Kırmızı yap */
+    transform: rotate(90deg); /* Hafif döndür (Hoş bir efekt) */
+}
+/* --- TABLO İŞLEM BUTONLARI --- */
+
 .action-buttons {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 8px; /* Butonlar arasına boşluk koyar */
+    gap: 8px; /* Butonlar arası boşluk */
 }
 
-.action-buttons button {
-    padding: 6px 12px; /* Butonların boyutunu küçültür */
-    font-size: 14px;
-    margin: 0; /* Ekstra margin'leri sıfırlar */
-}
-/* ========================================================== */
-/* YENİ: Soru Bankası Rapor Stilleri                          */
-/* ========================================================== */
-.sb-report-container {
-    display: flex;
-    gap: 30px;
-}
-.sb-report-main {
-    flex-grow: 1;
-}
-.sb-report-sidebar {
-    width: 320px;
-    flex-shrink: 0;
-}
-.sb-report-header {
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-}
-.sb-report-header .student-info {
-    text-align: right;
-    font-size: 0.9em;
-    color: #666;
-}
-.sb-report-header h3 {
-    font-size: 2.2em;
-    color: var(--text-dark);
-    margin: 0;
-}
-.summary-card {
-    background-color: #f9fafb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-.summary-card h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.2em;
-    color: var(--text-dark);
-}
-.stat-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-.stat-box {
-    background-color: var(--card-bg);
-    padding: 15px;
-    border-radius: 6px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.stat-box .value {
-    font-size: 2em;
-    font-weight: 700;
-    color: var(--secondary-button-bg);
-}
-.stat-box .label {
-    font-size: 0.9em;
-    color: #777;
-}
-.hata-analizi-list .item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    font-size: 0.95em;
-    border-bottom: 1px solid var(--border-color);
-}
-.hata-analizi-list .item:last-child {
-    border-bottom: none;
-}
-.hata-analizi-list .item .value {
-    font-weight: 700;
-}
-.ders-performans-card {
-    margin-bottom: 25px;
-}
-.ders-performans-card .ders-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 15px;
-}
-.ders-performans-card .ders-header h5 {
-    font-size: 1.4em;
-    margin: 0;
-}
-.ders-performans-card .ders-header .basari {
-    font-size: 1em;
-    font-weight: 700;
-    color: #555;
-}
-.konu-list .konu-item {
-    display: grid;
-    grid-template-columns: 2fr 60px 1fr 1.5fr;
-    gap: 15px;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-.konu-list .konu-item:first-child { /* Başlık satırı */
-    font-weight: 700;
-    color: #888;
-    font-size: 0.85em;
-    text-transform: uppercase;
-}
-.konu-list .konu-item:last-child {
-    border-bottom: none;
-}
-.konu-basari-bar {
-    width: 100%;
-    height: 10px;
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    overflow: hidden;
-}
-.konu-basari-bar .dolu-bar {
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.5s ease-in-out;
-}
-.hata-sebebi-tag {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: 700;
-    color: white;
-    text-align: center;
-}
-/* Hata Sebeplerine Göre Renkler */
-.hata-sebebi-tag.bilgi-eksikligi { background-color: #e53935; } /* Kırmızı */
-.hata-sebebi-tag.dikkatsizlik { background-color: #f57c00; } /* Turuncu */
-.hata-sebebi-tag.anlama-hatasi { background-color: #5e35b1; } /* Mor */
-/* ================================================= */
-/* YENİ: Detaylı Sonuç Giriş Ekranı Stilleri          */
-/* ================================================= */
-.ders-sonuc-blok {
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-}
-.soru-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 5px;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-}
-.soru-item:nth-child(odd) {
-    background-color: #f9f9f9;
-}
-.soru-numarasi {
-    font-weight: 700;
-    width: 40px;
-    flex-shrink: 0;
-}
-.soru-konusu {
-    flex-grow: 1;
-    color: #555;
-    font-size: 0.95em;
-}
-.soru-durum-secenekleri {
-    display: flex;
-    gap: 15px;
-    width: 150px;
-    flex-shrink: 0;
-    justify-content: center;
-}
-.soru-durum-secenekleri label {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.hata-sebebi-select {
-    width: 200px;
-    padding: 6px;
-    margin-left: 10px;
-}
-
-/* ================================================= */
-/* YENİ: Hata Karnesi Rapor Stilleri                 */
-/* ================================================= */
-
-/* Ekranda A4'e benzer bir görünüm için ana rapor kabı */
-.report-printable-a4 {
-    background: white;
-    width: 21cm;
-    min-height: 29.7cm;
-    padding: 1.5cm;
-    margin: 20px auto;
-    border: 1px solid #D3D3D3;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-.report-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--primary-button-bg);
-    padding-bottom: 15px;
-    margin-bottom: 30px;
-}
-.report-header h2 {
-    margin: 0;
+.action-btn {
     border: none;
-    font-size: 2em;
-    color: var(--sidebar-bg);
-}
-.report-header .info p {
-    margin: 0;
-    text-align: right;
-    font-size: 0.9em;
-}
-
-.report-summary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.summary-card h3 {
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-/* Dinamik bar grafiği görünümü için */
-.bar-chart-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 0.9em;
-}
-.bar-label {
-    width: 40%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 10px;
-}
-.bar-wrapper {
-    width: 60%;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-}
-.bar {
-    height: 20px;
-    line-height: 20px;
-    color: white;
-    text-align: right;
-    padding-right: 5px;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: width 0.5s ease-in-out;
-}
-/* Bar renkleri */
-.bar.color-1 { background-color: #42a5f5; } /* Mavi */
-.bar.color-2 { background-color: #ff7043; } /* Turuncu */
-.bar.color-3 { background-color: #66bb6a; } /* Yeşil */
-.bar.color-4 { background-color: #ab47bc; } /* Mor */
-.bar.color-5 { background-color: #ef5350; } /* Kırmızı */
-
-
-.report-details table {
-    margin-top: 10px;
-    font-size: 0.9em;
-}
-.report-details th {
-    background-color: var(--sidebar-bg);
-    color: white;
-}
-.report-details tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-/* ================================================= */
-/* DÜZELTİLMİŞ YAZDIRMA AYARLARI (A4 UYUMLU)         */
-/* ================================================= */
-@media print {
-    /* 1. Sayfa akışını serbest bırak (Çoklu sayfa sorunu için) */
-    html, body {
-        height: auto !important;
-        overflow: visible !important;
-        background-color: white !important;
-        font-size: 12pt; /* Okunabilir baskı boyutu */
-    }
-
-    /* 2. Sol menü sabitleme ayarlarını yazdırmada iptal et */
-    .main-app, 
-    .main-content-wrapper, 
-    .content {
-        height: auto !important;
-        width: 100% !important;
-        overflow: visible !important;
-        display: block !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: static !important;
-    }
-
-    /* 3. Gizlenecek Öğeler */
-    .sidebar, 
-    .modal, 
-    button, 
-    select, 
-    input, 
-    .main-app > .content > h2, 
-    .modern-filter-card, /* Filtre alanını gizle */
-    #sb-print-btn,
-    .page-view > div:first-child /* Başlık satırlarını gizle */
-    {
-        display: none !important;
-    }
-
-    /* 4. Rapor Alanını GÖRÜNÜR ve A4'e SIĞDIR */
-    #sb-rapor-sonuc-container,
-    #rapor-sonuc-container {
-        display: block !important;
-        visibility: visible !important;
-        position: relative !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 5. A4 Kapsayıcı Ayarı */
-    .report-printable-a4 {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* 6. Tabloların Taşmasını Engelle (Sağ taraf kesilmesi için) */
-    table {
-        width: 100% !important;
-        min-width: 0 !important; /* Genişlik zorlamasını kaldır */
-        table-layout: fixed; /* Sütunları kağıda sığdır */
-        font-size: 10pt !important; /* Tablo yazılarını biraz küçült */
-    }
-    
-    th, td {
-        padding: 5px !important; /* Boşlukları daralt */
-        word-wrap: break-word; /* Uzun kelimeleri alt satıra at */
-    }
-
-    /* 7. Başarı Oranı ve Başlıkları Hizala */
-    .report-header, .summary-card {
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-
-    /* 8. Sayfa Kesilmelerini Yönet */
-    .report-details > div {
-        page-break-inside: avoid; /* Tabloları ortadan bölme */
-        margin-top: 20px !important;
-    }
-
-    /* 9. Renkleri Zorla */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-/* ================================================= */
-/* YENİ: Soru Bankası Ders Kartı Stilleri            */
-/* ================================================= */
-.ders-karti {
-    background-color: #f9f9f9;
-    border: 1px solid var(--border-color);
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-.ders-karti-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-}
-.ders-karti-header input {
-    flex-grow: 1;
-    margin: 0 15px 0 0;
-}
-.konu-tablosu {
-    width: 100%;
-    border-collapse: collapse;
-}
-.konu-tablosu th, .konu-tablosu td {
-    text-align: left;
-    padding: 8px;
-    border-bottom: 1px solid var(--border-color);
-}
-.konu-tablosu input {
-    margin: 0;
-}
-.konu-tablosu .action-col {
-    width: 50px;
-    text-align: center;
-}
-/* ================================================= */
-/* YENİ: Sidebar Daraltma (Collapse) Stilleri        */
-/* ================================================= */
-
-/* Sidebar ve İçerik Alanı için Geçiş Efektleri */
-.sidebar, .main-content-wrapper {
-    transition: all 0.3s ease-in-out;
-}
-
-/* Daraltma Butonu */
-#sidebar-toggle-btn {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    justify-content: center;
     cursor: pointer;
-    position: absolute;
-    top: 20px;
-    right: -20px; /* Yarısı dışarıda kalacak şekilde */
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    transition: transform 0.3s ease-in-out, background-color 0.2s;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
-#sidebar-toggle-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+/* Düzenle Butonu (Mavi/Tema Rengi) */
+.btn-edit {
+    background-color: var(--theme-light); /* Açık Zemin */
+    color: var(--theme-color);            /* Koyu İkon */
+    border: 1px solid transparent;
 }
 
-/* Sidebar Daraltıldığında... */
-.sidebar.collapsed {
-    width: 80px; /* Sadece ikonlar sığacak kadar genişlik */
-}
-
-/* Daraltılmış menüdeki başlığı gizle */
-.sidebar.collapsed h2 {
-    opacity: 0;
-    visibility: hidden;
-}
-
-/* Daraltılmış menüdeki linklerin yazılarını (span) gizle */
-.sidebar.collapsed .sidebar-menu span {
-    display: none;
-}
-
-/* Daraltılmış menüdeki ikonları ortala */
-.sidebar.collapsed .sidebar-menu li a {
-    justify-content: center;
-}
-.sidebar.collapsed .sidebar-menu li a i {
-    margin-right: 0;
-}
-
-/* Daraltılmış menüdeki alt menüleri gizle */
-.sidebar.collapsed .submenu {
-    display: none !important; /* Her durumda gizli kalmalı */
-}
-.sidebar.collapsed .sidebar-menu li.active {
-    background-color: transparent; /* Aktif olsa bile arka plan rengini sıfırla */
-}
-
-
-
-/* İçerik alanı, menü daraltıldığında sola doğru genişlesin */
-.main-content-wrapper.expanded {
-    margin-left: 80px;
-}
-
-/* ========================================================== */
-/* YENİ: Aktif Menü Vurgulama Stilleri                        */
-/* ========================================================== */
-
-/* Aktif olan ana menü öğesinin stilini belirler */
-.sidebar-menu > li.active-menu-item > a {
-    background-color: rgba(0, 0, 0, 0.3); /* Arka planı biraz daha koyu yap */
-    border-left: 4px solid var(--accent-color); /* Soluna belirgin bir çizgi ekle */
-    font-weight: 700; /* Yazıyı kalınlaştır */
-}
-
-/* Alt menüsü olan bir başlık aktif olduğunda (açıldığında) */
-.sidebar-menu li.submenu-active > a {
-    background-color: rgba(0, 0, 0, 0.2);
-}
-/* ========================================= */
-/* MODERN ARAYÜZ İYİLEŞTİRMELERİ (OVERRIDE)  */
-/* ========================================= */
-
-body {
-    font-family: 'Segoe UI', system-ui, 'Lato', sans-serif;
-    background-color: var(--main-bg);
-    color: var(--text-dark);
-}
-
-/* Sidebar Modernizasyonu */
-.sidebar {
-    box-shadow: 4px 0 24px rgba(0,0,0,0.05);
-    background-color: var(--sidebar-bg);
-}
-
-.sidebar h2 {
-    background-color: transparent;
+.btn-edit:hover {
+    background-color: var(--theme-color);
     color: white;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 20px;
+    transform: translateY(-2px); /* Yukarı zıplama efekti */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.sidebar-menu li a {
-    color: var(--sidebar-text);
-    border-left: 3px solid transparent;
-    margin: 4px 10px;
-    border-radius: 6px;
-    padding: 12px 15px;
+/* Sil Butonu (Kırmızı) */
+.btn-delete {
+    background-color: #fee2e2; /* Açık Kırmızı */
+    color: #ef4444;            /* Koyu Kırmızı */
+    border: 1px solid transparent;
 }
 
-.sidebar-menu li a:hover {
-    background-color: rgba(255,255,255,0.05);
+.btn-delete:hover {
+    background-color: #ef4444;
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
-
-/* Aktif Menü Tasarımı */
-.sidebar-menu li.active-menu-item > a {
-    background-color: var(--sidebar-active);
-    color: white;
-    border-left: none; /* Eski çizgiyi kaldır */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-.sidebar-menu li.active-menu-item > a i {
-    color: var(--sidebar-accent);
-}
-
-/* Kartlar ve Kutular */
-.card, .ders-karti, .login-box, .modal-content {
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-/* Input Alanları */
-input, select, textarea {
-    background-color: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 12px 15px;
-    transition: all 0.2s;
-}
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--sidebar-accent);
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-}
-
-/* Butonlar */
-button {
-    border-radius: 8px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s;
-}
-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Birincil Buton */
-.primary-button, .login-box button {
-    background-color: var(--primary-button-bg);
-}
-.primary-button:hover, .login-box button:hover {
-    background-color: var(--primary-button-hover);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-/* Tehlike/Sil Butonları */
-.btn-danger {
-    background-color: #fff;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-}
-.btn-danger:hover {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-/* Tablo Satırları */
-#student-list-table tbody tr, #deneme-sinavlari-listesi li {
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.1s;
-}
-#student-list-table tbody tr:hover, #deneme-sinavlari-listesi li:hover {
-    background-color: #f1f5f9;
-}
-/* ================================================= */
-/* MODAL KAPATMA BUTONU DÜZELTME (KESİN ÇÖZÜM)       */
-/* ================================================= */
-
-.modal-close {
-    position: absolute !important; /* Konumu sabitle */
-    top: 10px !important;
-    right: 20px !important;
-    
-    /* Görünüm Ayarları */
-    color: #334155 !important;     /* Koyu Lacivert (Net görünsün) */
-    background: transparent !important; /* Arkadaki gri şeridi yok et */
-    background-color: transparent !important;
-    border: none !important;
-    
-    /* Boyutlandırma */
-    font-size: 40px !important;    /* Daha büyük çarpı işareti */
-    font-weight: 900 !important;   /* Kalın */
-    line-height: 1 !important;
-    
-    /* Tıklanabilirlik */
-    cursor: pointer !important;
-    z-index: 9999 !important;      /* En üstte dursun */
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    opacity: 1 !important;         /* Saydamlığı kaldır */
-}
-
-/* Üzerine gelince kırmızı olsun */
-.modal-close:hover {
-    color: #ef4444 !important;
-    transform: scale(1.1); /* Hafif büyüsün */
-}
-/* EKLENECEK CSS (En Alta) */
-#soru-bankalari-listesi {
-    width: 100% !important;
-    display: block !important;
-    padding: 0;
-    margin-top: 20px;
-}
-#soru-bankalari-listesi ul {
-    width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-</style>
-   
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    </style> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 
 <body>
-    <div id="login-view" class="login-container" style="display: flex;">
-        <div class="login-box">
-            <h1>Sisteme Giriş</h1>
-            <input type="email" id="email" placeholder="E-posta">
-            <input type="password" id="password" placeholder="Şifre">
-            <button onclick="handleLogin()">Giriş Yap</button>
+    <div id="login-view" class="login-container" style="display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f1f5f9;">
+    <div class="login-box" style="width: 100%; max-width: 400px; padding: 40px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 50px; height: 50px; background: var(--theme-color); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 15px auto;">
+                <i class="fa-solid fa-user-lock"></i>
+            </div>
+            <h1 style="font-size: 1.8rem; color: #1e293b; margin: 0;">Sisteme Giriş</h1>
+            <p style="color: #64748b; margin-top: 5px; font-size: 0.9rem;">Devam etmek için lütfen giriş yapın.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.9rem;">E-Posta</label>
+                <input type="email" id="email" placeholder="ornek@okul.com" style="width: 100%; box-sizing: border-box;">
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.9rem;">Şifre</label>
+                <input type="password" id="password" placeholder="••••••" style="width: 100%; box-sizing: border-box;">
+            </div>
+
+            <button class="primary-button" onclick="handleLogin()" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 1rem;">
+                Giriş Yap <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i>
+            </button>
+        </div>
+        
+    </div>
+</div>
+
+    <div id="main-app-view" class="main-app">
+       <div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-box"><i class="fa-solid fa-shapes"></i></div>
+        <div>
+            <h2>Öğretmen Paneli</h2>
+            <small style="color:#94a3b8; font-size:0.8rem;">V2.0 Öğrenci Takip</small>
         </div>
     </div>
 
-    <div id="main-app-view" class="main-app">
-        <div class="sidebar">
-            <h2>Öğretmen Paneli</h2>
-<button id="sidebar-toggle-btn" onclick="toggleSidebar()">
-    <i class="fa-solid fa-bars"></i>
-</button>
-<ul class="sidebar-menu">
-    <li data-view="dashboard-view"><a href="#" onclick="showView('dashboard-view')"><i class="fa-solid fa-house"></i><span>Ana Sayfa</span></a></li>
-    <li class="has-submenu">
-        <a href="#" onclick="toggleSubmenu(event)"><i class="fa-solid fa-users"></i><span>Öğrenci Yönetimi</span></a>
-        <ul class="submenu">
-            <li><a href="#" onclick="openAddStudentModal()"><i class="fa-solid fa-user-plus"></i><span>Öğrenci Ekle</span></a></li>
-            <li data-view="student-list-view"><a href="#" onclick="showView('student-list-view')"><i class="fa-solid fa-list"></i><span>Öğrenci Listesi</span></a></li>
-        </ul>
-    </li>
-    <li data-view="exams-view"><a href="#" onclick="showView('exams-view')"><i class="fa-solid fa-file-lines"></i><span>Deneme Sınavları</span></a></li>
-    <li class="has-submenu">
-        <a href="#" onclick="toggleSubmenu(event)"><i class="fa-solid fa-book"></i><span>Soru Bankası</span></a>
-        <ul class="submenu">
-            <li data-view="soru-bankasi-view"><a href="#" onclick="showView('soru-bankasi-view')"><i class="fa-solid fa-list-ul"></i><span>Banka Listesi</span></a></li>
-            <li data-view="soru-bankasi-giris-view"><a href="#" onclick="showView('soru-bankasi-giris-view')"><i class="fa-solid fa-pen-to-square"></i><span>Sonuç Girişi</span></a></li>
-        </ul>
-    </li>
-    <li data-view="reports-view"><a href="#" onclick="showView('reports-view')"><i class="fa-solid fa-chart-pie"></i><span>Deneme Karnesi</span></a></li>
-    <li data-view="sb-reports-view"><a href="#" onclick="showView('sb-reports-view')"><i class="fa-solid fa-address-card"></i><span>Soru Bankası Karnesi</span></a></li>
-    <li data-view="daily-tracking-view"><a href="#" onclick="showView('daily-tracking-view')"><i class="fa-solid fa-calendar-days"></i><span>Günlük Takip</span></a></li>
-    <li class="logout"><a href="#" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Çıkış Yap</span></a></li>
-</ul>
-        </div> <div class="main-content-wrapper">
+    <ul class="sidebar-menu">
+        <li data-view="dashboard-view">
+            <a href="#" onclick="showView('dashboard-view')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="menu-icon" alt="Ana Sayfa">
+                <span>Ana Sayfa</span>
+            </a>
+        </li>
+        
+        <li class="has-submenu" data-view="student-list-view"> <a href="#" onclick="toggleSubmenu(event)">
+                <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" class="menu-icon" alt="Öğrenci">
+                <span>Öğrenci Yönetimi</span>
+            </a>
+            <ul class="submenu">
+                <li><a href="#" onclick="openAddStudentModal()"><img src="https://cdn-icons-png.flaticon.com/512/3001/3001764.png" class="menu-icon-small"><span>Öğrenci Ekle</span></a></li>
+                <li data-view="student-list-view"><a href="#" onclick="showView('student-list-view')"><img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" class="menu-icon-small"><span>Öğrenci Listesi</span></a></li>
+            </ul>
+        </li>
+        
+        <li data-view="exams-view">
+            <a href="#" onclick="showView('exams-view')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2995/2995459.png" class="menu-icon" alt="Sınav">
+                <span>Deneme Sınavları</span>
+            </a>
+        </li>
+        
+        <li class="has-submenu" data-view="soru-bankasi-view">
+            <a href="#" onclick="toggleSubmenu(event)">
+                <img src="https://cdn-icons-png.flaticon.com/512/3330/3330314.png" class="menu-icon" alt="Kitap">
+                <span>Soru Bankası</span>
+            </a>
+            <ul class="submenu">
+                <li data-view="soru-bankasi-view"><a href="#" onclick="showView('soru-bankasi-view')"><img src="https://cdn-icons-png.flaticon.com/512/2921/2921226.png" class="menu-icon-small"><span>Banka Listesi</span></a></li>
+                <li data-view="soru-bankasi-giris-view"><a href="#" onclick="showView('soru-bankasi-giris-view')"><img src="https://cdn-icons-png.flaticon.com/512/1001/1001371.png" class="menu-icon-small"><span>Sonuç Girişi</span></a></li>
+            </ul>
+        </li>
+        
+       <li class="has-submenu">
+    <a href="#" onclick="toggleSubmenu(event)">
+        <img src="https://cdn-icons-png.flaticon.com/512/2936/2936690.png" class="menu-icon" alt="Raporlar">
+        <span>Raporlar</span>
+    </a>
+    <ul class="submenu">
+        <li data-view="reports-view">
+            <a href="#" onclick="showView('reports-view')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2995/2995459.png" class="menu-icon-small" alt="Deneme">
+                <span>Deneme Karnesi</span>
+            </a>
+        </li>
+        
+        <li data-view="sb-reports-view">
+            <a href="#" onclick="showView('sb-reports-view')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2838/2838779.png" class="menu-icon-small" alt="Soru Bankası">
+                <span>Soru Bankası Karnesi</span>
+            </a>
+        </li>
+    </ul>
+</li>
+
+        <li data-view="daily-tracking-view">
+            <a href="#" onclick="showView('daily-tracking-view')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" class="menu-icon" alt="Takip">
+                <span>Günlük Takip</span>
+            </a>
+        </li>
+
+        <li class="logout">
+            <a href="#" onclick="handleLogout()">
+                <img src="https://cdn-icons-png.flaticon.com/512/3580/3580235.png" class="menu-icon" alt="Çıkış">
+                <span style="color: #ef4444;">Çıkış Yap</span>
+            </a>
+        </li>
+    </ul>
+</div>
+         <div class="main-content-wrapper">
     <div class="content">
             <div id="dashboard-view" class="page-view">
                 <h2>Ana Sayfa</h2>
@@ -1146,12 +629,49 @@ button:hover {
         </div>
 </div>
 <div id="sb-reports-view" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
-        <h2>Soru Bankası Karnesi</h2>
-        <button id="sb-print-btn" class="secondary-button" onclick="printSoruBankasiRaporu()" style="display: none;">
-            <i class="fa-solid fa-print"></i> Yazdır
-        </button>
+    <h2 style="margin-bottom: 20px;">Soru Bankası Karnesi</h2>
+
+    <div class="modern-filter-card">
+        <div class="filter-grid" style="grid-template-columns: 2fr 2fr 1fr 1fr auto auto;"> 
+            <div class="input-group">
+                <label class="input-label"><i class="fa-solid fa-user"></i> Öğrenci</label>
+                <select id="sb-rapor-ogrenci-secimi" class="custom-select"></select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label"><i class="fa-solid fa-book"></i> Soru Bankası</label>
+                <select id="sb-rapor-banka-secimi" class="custom-select">
+                    <option value="">Tüm Soru Bankaları</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label"><i class="fa-regular fa-calendar"></i> Başlangıç</label>
+                <input type="date" id="sb-rapor-baslangic-tarihi" class="custom-date">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label"><i class="fa-regular fa-calendar-check"></i> Bitiş</label>
+                <input type="date" id="sb-rapor-bitis-tarihi" class="custom-date">
+            </div>
+
+            <button class="search-btn" onclick="generateSoruBankasiRaporu()">
+                <i class="fa-solid fa-chart-pie"></i> Raporla
+            </button>
+
+            <button id="sb-print-btn" class="btn-print" onclick="printSoruBankasiRaporu()">
+                <i class="fa-solid fa-print"></i> Yazdır
+            </button>
+        </div>
     </div>
+    
+    <div id="sb-rapor-sonuc-container" style="margin-top: 20px;">
+        <div style="text-align: center; color: #666; padding: 40px; border: 2px dashed #e2e8f0; border-radius: 12px;">
+            <i class="fa-solid fa-chart-simple" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+            <p>Rapor oluşturmak için yukarıdan seçim yapınız.</p>
+        </div>
+    </div>
+</div>
 <style>
     /* Bu panele özel stil tanımları */
     .modern-filter-card {
@@ -1176,13 +696,35 @@ button:hover {
         background: linear-gradient(to bottom, var(--primary-button-bg), var(--secondary-button-bg));
     }
 
-    .filter-grid {
-        display: grid;
-        grid-template-columns: 2fr 2fr 1fr 1fr auto; /* Sütun oranları */
-        gap: 20px;
-        align-items: end; /* Alt hizalama */
-    }
+    /* --- FİLTRELEME ALANI HİZALAMA DÜZELTMESİ --- */
+.filter-grid {
+    display: grid;
+    /* Sütun oranları: Geniş, Geniş, Dar, Dar, Buton, Buton */
+    grid-template-columns: 2fr 2fr 1fr 1fr auto auto; 
+    gap: 15px;
+    align-items: end; /* KRİTİK KOD: Hepsini en alta (tabana) yaslar */
+}
 
+/* Buton Yüksekliklerini Inputlarla Eşitle */
+.search-btn, .btn-print {
+    height: 45px; /* Input yüksekliği ile aynı */
+    padding: 0 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1px; /* Çerçeve payı için ince ayar */
+    white-space: nowrap; /* Yazının alt satıra kaymasını engelle */
+}
+
+/* Mobilde veya dar ekranda bozulmasın */
+@media (max-width: 1200px) {
+    .filter-grid {
+        grid-template-columns: 1fr 1fr; /* Yer kalmazsa 2 sütuna düşür */
+    }
+    .search-btn, .btn-print {
+        width: 100%; /* Mobilde butonları tam genişlik yap */
+    }
+}
     .input-group {
         display: flex;
         flex-direction: column;
@@ -1446,42 +988,145 @@ html, body {
     position: relative;
     scroll-behavior: smooth; /* Yumuşak kaydırma */
 }
+/* --- YENİ BUTON TASARIMLARI --- */
+
+/* 1. Kesik Çizgili "Yeni Satır Ekle" Butonu */
+.btn-dashed-add {
+    width: 100%;
+    border: 2px dashed var(--theme-color); /* Temanın renginde kesik çizgi */
+    background-color: transparent;
+    color: var(--theme-color);
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-dashed-add:hover {
+    background-color: var(--theme-light); /* Üzerine gelince açık renk zemin */
+    transform: translateY(-2px);
+}
+
+/* 2. Koyu "Ders Ekle" Butonu */
+.btn-dark-action {
+    background-color: #334155; /* Koyu Slate */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn-dark-action:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* 3. Dersi Sil Butonu (Kartın içindeki) */
+.btn-delete-card {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-delete-card:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* 4. Satır Silme (Çöp Kutusu) İkonu */
+.btn-icon-delete {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* Yuvarlak */
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-icon-delete:hover {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: rotate(15deg); /* Hafif döndürme efekti */
+}
+/* --- SATIR SİLME (ÇÖP KUTUSU) BUTONU --- */
+.btn-icon-delete {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;        /* Hafif yuvarlatılmış kare */
+    background-color: #fee2e2; /* Çok açık kırmızı zemin */
+    border: 1px solid #fecaca; /* İnce kırmızı çerçeve */
+    color: #ef4444;            /* İkon rengi (Kırmızı) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+}
+
+/* Üzerine gelince (Hover) */
+.btn-icon-delete:hover {
+    background-color: #ef4444; /* Zemin koyu kırmızı olsun */
+    color: white;              /* İkon beyaz olsun */
+    border-color: #ef4444;
+    transform: translateY(-2px); /* Hafif yukarı zıplasın */
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25); /* Kırmızı gölge */
+}
+/* --- YAZDIR BUTONU STİLİ --- */
+.btn-print {
+    padding: 0 25px; /* Genişlik */
+    height: 46px;    /* Diğer inputlarla aynı yükseklik */
+    background: #475569; /* Slate Grisi (Şık ve Ciddi) */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: none; /* Başlangıçta gizli */
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-print:hover {
+    background: #334155;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
 </style>
 
-<div class="modern-filter-card">
-    <div class="filter-grid">
-        <div class="input-group">
-            <label class="input-label"><i class="fa-solid fa-user"></i> Öğrenci</label>
-            <select id="sb-rapor-ogrenci-secimi" class="custom-select">
-                </select>
-        </div>
 
-        <div class="input-group">
-            <label class="input-label"><i class="fa-solid fa-book"></i> Soru Bankası</label>
-            <select id="sb-rapor-banka-secimi" class="custom-select">
-                <option value="">Tüm Soru Bankaları</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label class="input-label"><i class="fa-regular fa-calendar"></i> Başlangıç</label>
-            <input type="date" id="sb-rapor-baslangic-tarihi" class="custom-date">
-        </div>
-
-        <div class="input-group">
-            <label class="input-label"><i class="fa-regular fa-calendar-check"></i> Bitiş</label>
-            <input type="date" id="sb-rapor-bitis-tarihi" class="custom-date">
-        </div>
-
-        <button class="search-btn" onclick="generateSoruBankasiRaporu()">
-            <i class="fa-solid fa-chart-pie"></i> Raporla
-        </button>
-    </div>
-</div>
     
-    <div id="sb-rapor-sonuc-container" style="margin-top: 20px;">
-        <p style="text-align: center; color: #666; padding: 20px;">Rapor oluşturmak için yukarıdan seçim yapınız.</p>
-    </div>
+   
 </div>
             <div id="reports-view" class="page-view">
                 <h2>Hata Karnesi</h2>
@@ -1512,7 +1157,9 @@ html, body {
                 <h4>Dersler ve Konular</h4>
                 <div id="dersler-konular-container">
                     </div>
-                <button type="button" class="secondary-button" onclick="addDersKarti('add')">+ Ders Ekle</button>
+                <button type="button" class="btn-dark-action" onclick="addDersKarti('add')">
+    <i class="fa-solid fa-layer-group"></i> Ders Ekle
+</button>
                 <button type="submit" class="primary-button" style="width: 100%; margin-top: 20px;">Soru Bankasını Kaydet</button>
             </form>
         </div>
@@ -1642,9 +1289,44 @@ html, body {
 
 
 
-// showView fonksiyonunu güncelleyerek yeni sayfa için init fonksiyonunu çağıralım.
-// Eski showView fonksiyonunu silip bunu yapıştırın.
+/* ================================================= */
+/* YENİ: DİNAMİK RENK YÖNETİMİ VE SHOWVIEW           */
+/* ================================================= */
+
+// 1. Renk Haritası (Hangi sayfa hangi renk olacak)
+const themeMap = {
+    // --- ÖĞRETMEN PANELİ ---
+    'dashboard-view':        { main: '#3b82f6', light: '#eff6ff' }, // Mavi
+    'student-list-view':     { main: '#6366f1', light: '#eef2ff' }, // İndigo
+    'exams-view':            { main: '#8b5cf6', light: '#f5f3ff' }, // Mor
+    'deneme-sonuc-giris-view': { main: '#8b5cf6', light: '#f5f3ff' },
+    'deneme-detayli-sonuc-giris-view': { main: '#8b5cf6', light: '#f5f3ff' },
+    
+    'soru-bankasi-view':       { main: '#f59e0b', light: '#fffbeb' }, // Turuncu
+    'soru-bankasi-giris-view': { main: '#f59e0b', light: '#fffbeb' }, // Turuncu
+    
+    'reports-view':          { main: '#14b8a6', light: '#f0fdfa' }, // Yeşil
+    'sb-reports-view':       { main: '#14b8a6', light: '#f0fdfa' }, // Yeşil
+    
+    'daily-tracking-view':   { main: '#f43f5e', light: '#fff1f2' }, // Gül Rengi
+};
+
+// 2. Rengi Uygulayan Fonksiyon
+function applyThemeColor(viewId) {
+    // Eğer haritada yoksa varsayılan mavi kullan
+    const theme = themeMap[viewId] || { main: '#3b82f6', light: '#eff6ff' }; 
+    
+    // CSS Değişkenlerini Güncelle
+    document.documentElement.style.setProperty('--theme-color', theme.main);
+    document.documentElement.style.setProperty('--theme-light', theme.light);
+}
+
+// 3. Güncellenmiş Sayfa Gösterme Fonksiyonu
 window.showView = function(viewId) {
+    // A) Önce Rengi Değiştir
+    applyThemeColor(viewId);
+
+    // B) Aktif menü vurgularını yönet
     document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active-menu-item', 'submenu-active'));
     document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('active'));
 
@@ -1658,27 +1340,31 @@ window.showView = function(viewId) {
         }
     }
     
+    // C) Tüm sayfaları gizle
     document.querySelectorAll('.page-view').forEach(view => view.style.display = 'none');
     
+    // D) Sadece istenen sayfayı göster
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
         viewToShow.style.display = 'block';
     }
 
+    // E) Sayfaya özel başlangıç fonksiyonlarını çağır
     if (viewId === 'reports-view') initReportsView();
-    if (viewId === 'sb-reports-view') initSoruBankasiRaporView(); // YENİ EKLENEN SATIR
+    if (viewId === 'sb-reports-view') initSoruBankasiRaporView();
+    if (viewId === 'daily-tracking-view') initGunlukTakipView();
 }
 
 /* ================================================= */
-/* YENİ: SORU BANKASI RAPORU VE YAZDIRMA FONKSİYONLARI */
+/* YENİ: DİNAMİK VE GRAFİKLİ SORU BANKASI RAPORU     */
 /* ================================================= */
 
-// Sayfa açıldığında Öğrenci ve Soru Bankası listesini doldurur
+// 1. Sayfa Açılış Ayarları
 async function initSoruBankasiRaporView() {
     const ogrenciSelect = document.getElementById('sb-rapor-ogrenci-secimi');
     const bankaSelect = document.getElementById('sb-rapor-banka-secimi');
     
-    // 1. Öğrencileri Doldur
+    // Öğrencileri Doldur
     ogrenciSelect.innerHTML = '<option value="">Öğrenci Seçiniz...</option>';
     const ogrenciQuery = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
     const ogrenciSnapshot = await getDocs(ogrenciQuery);
@@ -1686,7 +1372,7 @@ async function initSoruBankasiRaporView() {
         ogrenciSelect.innerHTML += `<option value="${doc.id}">${doc.data().adi} ${doc.data().soyadi}</option>`;
     });
 
-    // 2. Soru Bankalarını Doldur
+    // Soru Bankalarını Doldur
     bankaSelect.innerHTML = '<option value="">Tüm Soru Bankaları (Genel Rapor)</option>';
     const bankaQuery = query(collection(db, "soruBankalari"), where("kurumId", "==", currentUserProfile.kurumId));
     const bankaSnapshot = await getDocs(bankaQuery);
@@ -1695,57 +1381,47 @@ async function initSoruBankasiRaporView() {
         bankaSelect.innerHTML += `<option value="${doc.id}">${banka.bankaAdi} - ${banka.yayinEvi}</option>`;
     });
 
-    // Tarihleri ayarla (Son 30 gün varsayılan)
+    // Tarihleri ayarla (Varsayılan: Son 30 gün)
     const today = new Date();
     document.getElementById('sb-rapor-bitis-tarihi').valueAsDate = today;
     const lastMonth = new Date();
     lastMonth.setDate(today.getDate() - 30);
     document.getElementById('sb-rapor-baslangic-tarihi').valueAsDate = lastMonth;
     
-    // Yazdır butonunu gizle
     document.getElementById('sb-print-btn').style.display = 'none';
 }
 
-// Raporu Oluşturan Ana Fonksiyon
+// 2. Rapor Oluşturma ve Grafik Motoru
 window.generateSoruBankasiRaporu = async function() {
     const ogrenciId = document.getElementById('sb-rapor-ogrenci-secimi').value;
-    const bankaId = document.getElementById('sb-rapor-banka-secimi').value; // Seçilen banka ID'si
+    const bankaId = document.getElementById('sb-rapor-banka-secimi').value;
     const baslangicTarihi = document.getElementById('sb-rapor-baslangic-tarihi').value;
     const bitisTarihi = document.getElementById('sb-rapor-bitis-tarihi').value;
     const container = document.getElementById('sb-rapor-sonuc-container');
     const printBtn = document.getElementById('sb-print-btn');
 
-    if (!ogrenciId) {
-        alert("Lütfen bir öğrenci seçiniz.");
-        return;
-    }
+    if (!ogrenciId) { alert("Lütfen bir öğrenci seçiniz."); return; }
     
-    container.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fa-solid fa-spinner fa-spin'></i> Rapor hazırlanıyor...</div>";
+    container.innerHTML = "<div style='text-align:center; padding:40px;'><i class='fa-solid fa-spinner fa-spin' style='font-size:2rem; color:var(--theme-color);'></i><br><br>Veriler analiz ediliyor...</div>";
     printBtn.style.display = 'none';
 
-    // Sorguyu Hazırla
+    // Veri Çekme
     let q = query(collection(db, "soruBankasiSonuclari"), where("ogrenciId", "==", ogrenciId));
-    
-    // Eğer belirli bir banka seçildiyse sorguya ekle
-    if (bankaId) {
-        q = query(q, where("soruBankasiId", "==", bankaId));
-    }
-
-    // Not: Tarih filtresini client-side (tarayıcıda) yapacağız çünkü Firestore'da çoklu filtre indeks hatası verebilir.
+    if (bankaId) q = query(q, where("soruBankasiId", "==", bankaId));
     
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-        container.innerHTML = "<div class='card' style='text-align:center; padding:20px;'>Seçilen kriterlere uygun kayıt bulunamadı.</div>";
+        container.innerHTML = "<div class='card' style='text-align:center; padding:20px;'>Kriterlere uygun veri bulunamadı.</div>";
         return;
     }
 
-    // Veriyi İşle ve Tarih Filtresi Uygula
+    // Veri İşleme
     let toplamDogru = 0, toplamYanlis = 0, toplamBos = 0;
     let dersPerformanslari = {};
     let baslangicDate = baslangicTarihi ? new Date(baslangicTarihi) : null;
     let bitisDate = bitisTarihi ? new Date(bitisTarihi) : null;
-    if (bitisDate) bitisDate.setHours(23, 59, 59); // Gün sonu
+    if (bitisDate) bitisDate.setHours(23, 59, 59);
 
     let veriVar = false;
 
@@ -1753,7 +1429,6 @@ window.generateSoruBankasiRaporu = async function() {
         const sonuc = doc.data();
         const girisTarihi = sonuc.girisTarihi.toDate();
 
-        // Tarih Kontrolü
         if (baslangicDate && girisTarihi < baslangicDate) return;
         if (bitisDate && girisTarihi > bitisDate) return;
 
@@ -1767,103 +1442,113 @@ window.generateSoruBankasiRaporu = async function() {
             toplamDogru += konu.dogru || 0;
             toplamYanlis += konu.yanlis || 0;
             toplamBos += konu.bos || 0;
-            dersPerformanslari[sonuc.dersAdi].push({
-                ...konu,
-                tarih: girisTarihi // Tarihi de rapora eklemek için
-            });
+            dersPerformanslari[sonuc.dersAdi].push(konu);
         });
     });
 
     if (!veriVar) {
-        container.innerHTML = "<div class='card' style='text-align:center; padding:20px;'>Seçilen tarih aralığında veri bulunamadı.</div>";
+        container.innerHTML = "<div class='card' style='text-align:center; padding:20px;'>Seçilen tarih aralığında veri yok.</div>";
         return;
     }
-/* YENİ EKLENECEK KISIM */
-    const toplamSoru = toplamDogru + toplamYanlis + toplamBos;
-    // YENİ: Başarı Oranı Hesaplama
-    const genelBasari = toplamSoru > 0 ? Math.round((toplamDogru / toplamSoru) * 100) : 0;
-    
-    const ogrenciAdi = document.getElementById('sb-rapor-ogrenci-secimi').options[document.getElementById('sb-rapor-ogrenci-secimi').selectedIndex].text;
-    const bankaAdi = bankaId ? document.getElementById('sb-rapor-banka-secimi').options[document.getElementById('sb-rapor-banka-secimi').selectedIndex].text : "Tüm Soru Bankaları";
 
-    // --- HTML ÇIKTISI ---
+    const toplamSoru = toplamDogru + toplamYanlis + toplamBos;
+    const genelBasari = toplamSoru > 0 ? Math.round((toplamDogru / toplamSoru) * 100) : 0;
+    const ogrenciAdi = document.getElementById('sb-rapor-ogrenci-secimi').options[document.getElementById('sb-rapor-ogrenci-secimi').selectedIndex].text;
+    const bankaAdi = bankaId ? document.getElementById('sb-rapor-banka-secimi').options[document.getElementById('sb-rapor-banka-secimi').selectedIndex].text : "Genel Performans Raporu";
+
+    // --- HTML ÇIKTISI OLUŞTURMA ---
     let reportHTML = `
     <div class="report-printable-a4">
-        <div class="report-header">
-            <div>
-                <h2 style="margin:0; color:var(--sidebar-bg);">Soru Bankası Gelişim Raporu</h2>
-                <p style="margin:5px 0 0 0; color:#666;">${bankaAdi}</p>
-            </div>
-            <div style="text-align:right; font-size:0.9em;">
-                <strong>${ogrenciAdi}</strong><br>
-                ${new Date().toLocaleDateString('tr-TR')}
+        <div class="report-header" style="border-bottom: 2px solid var(--theme-color); padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:end;">
+                <div>
+                    <h2 style="margin:0; color:var(--text-main); font-size:1.8rem;">Soru Bankası Analiz Karnesi</h2>
+                    <p style="margin:5px 0 0 0; color:var(--text-muted);">${bankaAdi}</p>
+                </div>
+                <div style="text-align:right;">
+                    <h3 style="margin:0; color:var(--theme-color);">${ogrenciAdi}</h3>
+                    <small>${new Date().toLocaleDateString('tr-TR')}</small>
+                </div>
             </div>
         </div>
 
-        <div class="summary-card" style="margin-top:20px; border-left: 5px solid var(--primary-button-bg);">
-            <h4 style="margin-top:0;">Genel Performans Özeti</h4>
-            <div class="stat-grid" style="grid-template-columns: repeat(5, 1fr);">
-                <div class="stat-box"><div class="value">${toplamSoru}</div><div class="label">Çözülen Soru</div></div>
-                <div class="stat-box"><div class="value" style="color:var(--success-color);">${toplamDogru}</div><div class="label">Doğru</div></div>
-                <div class="stat-box"><div class="value" style="color:var(--danger-color);">${toplamYanlis}</div><div class="label">Yanlış</div></div>
-                <div class="stat-box"><div class="value" style="color:#f59e0b;">${toplamBos}</div><div class="label">Boş</div></div>
-                
-                <div class="stat-box" style="background-color: #f0fdf4;">
-                    <div class="value" style="color: var(--primary-button-bg);">%${genelBasari}</div>
-                    <div class="label">Genel Başarı</div>
-                </div>
+        <div class="summary-card" style="background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 6px rgba(0,0,0,0.05); margin-bottom:30px; display:grid; grid-template-columns: repeat(5, 1fr); gap:15px; text-align:center;">
+            <div style="border-right:1px solid #eee;">
+                <div style="font-size:2rem; font-weight:bold; color:var(--text-main);">${toplamSoru}</div>
+                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Toplam Soru</div>
+            </div>
+            <div style="border-right:1px solid #eee;">
+                <div style="font-size:2rem; font-weight:bold; color:var(--success-color);">${toplamDogru}</div>
+                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Doğru</div>
+            </div>
+            <div style="border-right:1px solid #eee;">
+                <div style="font-size:2rem; font-weight:bold; color:var(--danger-color);">${toplamYanlis}</div>
+                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Yanlış</div>
+            </div>
+            <div style="border-right:1px solid #eee;">
+                <div style="font-size:2rem; font-weight:bold; color:#f59e0b;">${toplamBos}</div>
+                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Boş</div>
+            </div>
+            <div>
+                <div style="font-size:2rem; font-weight:bold; color:var(--theme-color);">%${genelBasari}</div>
+                <div style="font-size:0.8rem; color:#999; text-transform:uppercase;">Genel Başarı</div>
             </div>
         </div>
         
         <div class="report-details">`;
 
-    // Ders Bazlı Detaylar
     for (const dersAdi in dersPerformanslari) {
         const konular = dersPerformanslari[dersAdi];
-        let dersDogru = 0, dersToplam = 0;
+        let dDogru = 0, dToplam = 0;
         konular.forEach(k => {
-            dersDogru += k.dogru || 0;
-            dersToplam += (k.dogru || 0) + (k.yanlis || 0) + (k.bos || 0);
+            dDogru += k.dogru || 0;
+            dToplam += (k.dogru || 0) + (k.yanlis || 0) + (k.bos || 0);
         });
-        const basariYuzdesi = dersToplam > 0 ? Math.round((dersDogru / dersToplam) * 100) : 0;
+        const dBasari = dToplam > 0 ? Math.round((dDogru / dToplam) * 100) : 0;
+        
+        // Başarı Rengi Belirle
+        let progressColor = '#ef4444'; // Kırmızı
+        if(dBasari >= 50) progressColor = '#f59e0b'; // Turuncu
+        if(dBasari >= 75) progressColor = '#10b981'; // Yeşil
 
         reportHTML += `
-        <div style="margin-top: 25px; page-break-inside: avoid;">
-            <div style="background: #f1f5f9; padding: 10px 15px; border-radius: 8px 8px 0 0; display:flex; justify-content:space-between; align-items:center; border: 1px solid #e2e8f0;">
-                <h3 style="margin:0; font-size:1.1rem;">${dersAdi}</h3>
-                <span style="font-weight:bold; color: #475569;">Başarı: %${basariYuzdesi}</span>
+        <div style="margin-bottom: 30px; break-inside: avoid;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main);">${dersAdi}</h3>
+                <span style="font-weight:bold; color:${progressColor};">%${dBasari} Başarı</span>
             </div>
-            <table style="width:100%; border-collapse:collapse; font-size: 0.9em;">
-                <thead style="background: #fff;">
+            
+            <div style="height:10px; width:100%; background:#f1f5f9; border-radius:5px; overflow:hidden; margin-bottom:15px;">
+                <div style="height:100%; width:${dBasari}%; background:${progressColor};"></div>
+            </div>
+
+            <table style="width:100%; border-collapse:collapse; font-size: 0.9em; background:white; border:1px solid #e2e8f0;">
+                <thead style="background: #f8fafc;">
                     <tr style="border-bottom: 2px solid #e2e8f0;">
-                        <th style="text-align:left; padding:8px;">Ünite / Konu</th>
-                        <th style="text-align:center; padding:8px; width:60px;">Soru</th>
-                        <th style="text-align:center; padding:8px; width:60px;">D</th>
-                        <th style="text-align:center; padding:8px; width:60px;">Y</th>
-                        <th style="text-align:center; padding:8px; width:60px;">B</th>
-                        <th style="text-align:left; padding:8px;">Hata Sebebi</th>
+                        <th style="padding:10px; text-align:left;">Konu / Ünite</th>
+                        <th style="padding:10px; text-align:center; width:60px;">Soru</th>
+                        <th style="padding:10px; text-align:center; width:60px;">D</th>
+                        <th style="padding:10px; text-align:center; width:60px;">Y</th>
+                        <th style="padding:10px; text-align:center; width:60px;">B</th>
+                        <th style="padding:10px; text-align:left;">Hata Sebebi</th>
                     </tr>
                 </thead>
                 <tbody>`;
         
         konular.forEach(konu => {
-            // Renkli satır arka planı (hafif)
-            const rowStyle = "border-bottom: 1px solid #f1f5f9;";
             const hataText = konu.hataSebebi ? `<span style="color:var(--danger-color); font-weight:600;">${konu.hataSebebi}</span>` : '-';
-            
-            // Eğer yeni sistemden geliyorsa Ünite/Test bilgisini göster, yoksa sadece Konu
             const konuBaslik = (konu.uniteAdi && konu.testAdi) 
-                             ? `<small style="color:#666;">${konu.uniteAdi} - ${konu.testAdi}</small><br>${konu.konuAdi}`
-                             : konu.konuAdi;
+                             ? `<span style="color:#64748b; font-size:0.85em;">${konu.uniteAdi}</span><br><strong>${konu.konuAdi}</strong>`
+                             : `<strong>${konu.konuAdi}</strong>`;
 
             reportHTML += `
-            <tr style="${rowStyle}">
-                <td style="padding:8px;">${konuBaslik}</td>
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding:10px;">${konuBaslik}</td>
                 <td style="text-align:center;">${(konu.dogru||0)+(konu.yanlis||0)+(konu.bos||0)}</td>
                 <td style="text-align:center; color:var(--success-color); font-weight:bold;">${konu.dogru||0}</td>
                 <td style="text-align:center; color:var(--danger-color); font-weight:bold;">${konu.yanlis||0}</td>
                 <td style="text-align:center; color:#f59e0b;">${konu.bos||0}</td>
-                <td style="padding:8px;">${hataText}</td>
+                <td style="padding:10px;">${hataText}</td>
             </tr>`;
         });
         reportHTML += `</tbody></table></div>`;
@@ -1871,10 +1556,10 @@ window.generateSoruBankasiRaporu = async function() {
 
     reportHTML += `</div></div>`;
     container.innerHTML = reportHTML;
-    printBtn.style.display = 'block'; // Yazdır butonunu göster
+    printBtn.style.display = 'inline-block';
 }
 
-// YENİ: Yazdırma İşlemi
+// 3. Yazdırma Fonksiyonu
 window.printSoruBankasiRaporu = function() {
     window.print();
 }
@@ -2484,11 +2169,12 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
         container.innerHTML = html;
     }
 }
-        async function loadStudents() {
+        // GÜNCELLENMİŞ ÖĞRENCİ LİSTELEME FONKSİYONU
+async function loadStudents() {
     const studentTableBody = document.getElementById('student-list-body');
-    studentTableBody.innerHTML = '<tr><td colspan="5">Yükleniyor...</td></tr>'; // colspan 5 oldu
+    studentTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Yükleniyor...</td></tr>';
     
-    // Yeni başlığı ekliyoruz
+    // Tablo başlıklarını garantiye alalım
     const tableHead = document.getElementById('student-list-table').querySelector('thead');
     tableHead.innerHTML = `
         <tr>
@@ -2496,7 +2182,7 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
             <th>Sınıfı</th>
             <th>TC Kimlik No</th>
             <th>Kayıt Tarihi</th>
-            <th>İşlemler</th>
+            <th style="text-align:center;">İşlemler</th>
         </tr>`;
 
     const q = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
@@ -2504,19 +2190,28 @@ window.handleSaveSoruBankasiSonuclari = async function(soruBankasiId, dersAdi, s
     studentTableBody.innerHTML = '';
     
     if (querySnapshot.empty) {
-        studentTableBody.innerHTML = '<tr><td colspan="5">Henüz kayıtlı öğrenci yok.</td></tr>'; // colspan 5 oldu
+        studentTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">Henüz kayıtlı öğrenci yok.</td></tr>';
     } else {
         querySnapshot.forEach((doc) => {
             const student = doc.data();
             const studentName = `${student.adi} ${student.soyadi}`;
-            const row = `<tr>
-                <td>${studentName}</td>
-                <td>${student.sinifi || ''}</td>
+            
+            // Satır HTML'i (Butonlar yenilendi)
+            const row = `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td><span style="font-weight:600; color:var(--text-main);">${studentName}</span></td>
+                <td><span class="badge" style="background:#f1f5f9; color:#64748b;">${student.sinifi || '-'}</span></td>
                 <td>${student.tcNo || ''}</td>
                 <td>${student.kayitTarihi || ''}</td>
+                
                 <td class="action-buttons">
-                    <button class="secondary-button" onclick="openEditStudentModal('${doc.id}')"><i class="fa-solid fa-pencil"></i></button>
-                    <button class="btn-danger" onclick="handleDeleteStudent('${doc.id}', '${studentName}')"><i class="fa-solid fa-trash"></i></button>
+                    <button class="action-btn btn-edit" onclick="openEditStudentModal('${doc.id}')" title="Düzenle">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    
+                    <button class="action-btn btn-delete" onclick="handleDeleteStudent('${doc.id}', '${studentName}')" title="Sil">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
                 </td>
             </tr>`;
             studentTableBody.innerHTML += row;
@@ -2612,14 +2307,14 @@ window.handleAddStudent = async function() {
 }
 
 /* ================================================= */
-/* YENİ: İSTATİSTİKLİ VE TAM GENİŞLİK LİSTE          */
+/* GÜNCELLENMİŞ: SORU BANKASI LİSTELEME (RENKLİ BUTONLU) */
 /* ================================================= */
 async function loadSoruBankalari() {
     const container = document.getElementById('soru-bankalari-listesi');
     // Yükleniyor animasyonu
     container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;"><i class="fa-solid fa-spinner fa-spin"></i> Veriler yükleniyor...</div>';
     
-    // CSS ile kapsayıcıyı zorla genişlet (Garanti çözüm)
+    // CSS ile kapsayıcıyı zorla genişlet
     container.style.width = "100%";
     container.style.display = "block";
 
@@ -2636,7 +2331,7 @@ async function loadSoruBankalari() {
         querySnapshot.forEach((doc) => {
             const banka = doc.data();
             
-            // --- HESAPLAMA KISMI ---
+            // Hesaplama Kısmı
             let toplamSoru = 0;
             let dersSayisi = 0;
             
@@ -2650,49 +2345,50 @@ async function loadSoruBankalari() {
                     }
                 });
             }
-            // -----------------------
 
             html += `
             <li style="
                 display: grid;
-                grid-template-columns: 2fr 2fr 1fr; /* Sol, Orta, Sağ oranları */
+                grid-template-columns: 2fr 2fr 1fr; /* Sol, Orta, Sağ */
                 align-items: center; 
                 background-color: white;
-                border: 1px solid #e2e8f0;
-                border-left: 5px solid var(--primary-button-bg); /* Sol kenara renkli çizgi */
+                border: 1px solid var(--border-color);
+                border-left: 5px solid var(--theme-color); /* Sol kenar dinamik renk */
                 border-radius: 12px;
                 padding: 20px 25px;
                 width: 100%;
                 box-sizing: border-box;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
                 gap: 20px;
+                transition: transform 0.2s;
             ">
                 <div>
-                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
                         ${banka.bankaAdi}
                     </div>
-                    <div style="font-size: 0.95rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-building" style="color: var(--secondary-button-bg);"></i> ${banka.yayinEvi}
+                    <div style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-building"></i> ${banka.yayinEvi}
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 15px; justify-content: center;">
                     <div style="background-color: #f1f5f9; padding: 8px 15px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Ders</div>
-                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-dark);">${dersSayisi}</div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Ders</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">${dersSayisi}</div>
                     </div>
-                    <div style="background-color: #eff6ff; padding: 8px 15px; border-radius: 8px; text-align: center; border: 1px solid #dbeafe;">
-                        <div style="font-size: 0.8rem; color: var(--primary-button-bg); font-weight: 600; text-transform: uppercase;">Top. Soru</div>
-                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary-button-bg);">${toplamSoru}</div>
+                    <div style="background-color: var(--theme-light); padding: 8px 15px; border-radius: 8px; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+                        <div style="font-size: 0.75rem; color: var(--theme-color); font-weight: 700; text-transform: uppercase;">Soru</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--theme-color);">${toplamSoru}</div>
                     </div>
                 </div>
                 
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="secondary-button" style="margin:0; padding: 10px 15px; font-size: 14px;" onclick="openEditSoruBankasiModal('${doc.id}')" title="Düzenle">
+                <div class="action-buttons" style="justify-content: flex-end;">
+                    <button class="action-btn btn-edit" onclick="openEditSoruBankasiModal('${doc.id}')" title="Düzenle">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="btn-danger" style="margin:0; padding: 10px 15px; font-size: 14px;" onclick="handleDeleteSoruBankasi('${doc.id}', '${banka.bankaAdi}')" title="Sil">
-                        <i class="fa-solid fa-trash"></i>
+                    
+                    <button class="action-btn btn-delete" onclick="handleDeleteSoruBankasi('${doc.id}', '${banka.bankaAdi}')" title="Sil">
+                        <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
             </li>`;
@@ -2741,7 +2437,7 @@ window.openEditSoruBankasiModal = async function(bankaId) {
 }
 window.closeEditSoruBankasiModal = function() { document.getElementById('editSoruBankasiModal').style.display = 'none'; }
 /* ================================================= */
-/* GÜNCELLENMİŞ: GENİŞ KONU ALANI ve MODERN BAŞLIK   */
+/* GÜNCELLENMİŞ: RENKLİ VE MODERN DERS KARTI YAPISI  */
 /* ================================================= */
 
 window.addDersKarti = function(mode, dersData = { dersAdi: '', konular: [] }) {
@@ -2750,9 +2446,13 @@ window.addDersKarti = function(mode, dersData = { dersAdi: '', konular: [] }) {
 
     const kart = document.createElement('div');
     kart.className = 'ders-karti';
-    // Kartın dış çerçevesini ve dolgusunu sıfırlıyoruz ki içindeki header tam otursun
-    kart.style.padding = "0"; 
-    kart.style.overflow = "hidden"; // Köşelerin yuvarlak kalması için
+    // Kart tasarımı (Gölge ve kenarlık)
+    kart.style.border = "1px solid #e2e8f0";
+    kart.style.borderRadius = "12px";
+    kart.style.boxShadow = "0 4px 6px -1px rgba(0,0,0,0.05)";
+    kart.style.marginBottom = "20px";
+    kart.style.overflow = "hidden";
+    kart.style.padding = "0"; // İç padding'i sıfırladık
 
     let konuSatirlariHTML = '';
     
@@ -2766,40 +2466,76 @@ window.addDersKarti = function(mode, dersData = { dersAdi: '', konular: [] }) {
                 
                 <td><input type="number" class="konu-sorusayisi-input" placeholder="0" value="${konu.soruSayisi || ''}" required style="width: 100%; text-align: center; font-weight: bold;"></td>
                 
-                <td class="action-col"><button type="button" class="btn-danger" onclick="this.closest('tr').remove()" title="Satırı Sil"><i class="fa-solid fa-trash"></i></button></td>
+                <td class="action-col" style="text-align:center;">
+                    <button type="button" class="btn-icon-delete" onclick="this.closest('tr').remove()" title="Satırı Sil">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
             </tr>
         `;
     });
 
-    // --- YENİ DİNAMİK BAŞLIK VE TABLO YAPISI ---
+    // --- KART HTML YAPISI ---
     kart.innerHTML = `
-        <div class="ders-karti-header" style="background-color: #f1f5f9; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+        <div class="ders-karti-header" style="background-color: #f8fafc; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 15px;">
             <div style="flex-grow: 1;">
-                <label style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; display: block;">Ders Adı</label>
-                <input type="text" class="ders-adi-input" placeholder="Örn: Matematik" value="${dersData.dersAdi}" required style="border: 1px solid #cbd5e1; box-shadow: none; font-size: 16px; font-weight: 600; padding: 10px;">
+                <label style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing:0.5px; margin-bottom: 5px; display: block;">Ders Adı</label>
+                <input type="text" class="ders-adi-input" placeholder="Örn: Matematik" value="${dersData.dersAdi}" required 
+                       style="border: 1px solid #cbd5e1; font-size: 15px; font-weight: 600; padding: 10px; width:100%;">
             </div>
+            
             <div style="padding-top: 18px;">
-                 <button type="button" class="btn-danger" style="padding: 10px 15px; display: flex; align-items: center; gap: 6px; font-size: 14px;" onclick="this.closest('.ders-karti').remove()">
-                    <i class="fa-solid fa-trash-can"></i> Dersi Sil
-                 </button>
+                 <button type="button" class="btn-icon-delete" onclick="this.closest('tr').remove()" title="Satırı Sil">
+    <i class="fa-solid fa-trash-can"></i>
+</button>
             </div>
         </div>
 
-        <div style="padding: 15px; overflow-x: auto;">
-            <table class="konu-tablosu" style="width:100%; min-width: 700px;">
-                <thead>
-                    <tr>
-                        <th style="width: 18%">Ünite</th>  <th style="width: 18%">Test</th>   <th style="width: 44%">Konu</th>   <th style="width: 12%; text-align: center;">Soru</th> <th class="action-col" style="width: 8%"></th>
-                    </tr>
-                </thead>
-                <tbody>${konuSatirlariHTML}</tbody>
-            </table>
-            <button type="button" class="secondary-button" style="margin-top:15px; font-size: 0.9em; width: 100%; border-style: dashed;" onclick="addKonuSatiri(this)">
-                <i class="fa-solid fa-plus"></i> Yeni Konu/Test Satırı Ekle
+        <div style="padding: 20px; background:white;">
+            <div style="overflow-x: auto;">
+                <table class="konu-tablosu" style="width:100%; min-width: 700px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%; background:#fff; color:#94a3b8;">Ünite</th>
+                            <th style="width: 18%; background:#fff; color:#94a3b8;">Test</th>
+                            <th style="width: 44%; background:#fff; color:#94a3b8;">Konu</th>
+                            <th style="width: 10%; background:#fff; color:#94a3b8; text-align: center;">Soru</th>
+                            <th class="action-col" style="width: 10%; background:#fff;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>${konuSatirlariHTML}</tbody>
+                </table>
+            </div>
+
+            <button type="button" class="btn-dashed-add" onclick="addKonuSatiri(this)">
+                <i class="fa-solid fa-plus-circle"></i> Yeni Konu/Test Satırı Ekle
             </button>
         </div>
     `;
     container.appendChild(kart);
+}
+
+// Satır Ekleme Fonksiyonunu da güncelleyelim (Silme butonu için)
+window.addKonuSatiri = function(button) {
+    const tbody = button.previousElementSibling.querySelector('tbody'); // button'dan önceki div'in içindeki tabloyu bul
+    // Hata önleme: Tabloyu bulamazsa (yapı değişirse) diye kontrol
+    const table = button.parentElement.querySelector('table tbody');
+    
+    const newRow = (tbody || table).insertRow();
+    newRow.className = 'konu-satiri';
+    
+    newRow.innerHTML = `
+        <td><input type="text" class="unite-adi-input" placeholder="Ünite" style="font-size: 14px;"></td>
+        <td><input type="text" class="test-adi-input" placeholder="Test" style="font-size: 14px;"></td>
+        <td><input type="text" class="konu-adi-input" placeholder="Konu Başlığı" required style="font-weight: 500;"></td>
+        <td><input type="number" class="konu-sorusayisi-input" placeholder="0" required style="width: 100%; text-align: center; font-weight: bold;"></td>
+        
+        <td class="action-col" style="text-align:center;">
+            <button type="button" class="btn-icon-delete" onclick="this.closest('tr').remove()" title="Satırı Sil">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </td>
+    `;
 }
 
 window.addKonuSatiri = function(button) {
