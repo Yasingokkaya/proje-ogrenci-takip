@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Öğrenci Takip Sistemi</title>
     <style> /* <--- BU ETİKETİ EKLEYİN */
@@ -519,29 +520,27 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
 .clean-table tr:last-child td {
     border-bottom: none;
 }
-
 /* ================================================= */
-/* FİNAL YAZDIRMA AYARLARI (ÇOKLU SAYFA VE ÇAKIŞMA ÇÖZÜMÜ) */
+/* FİNAL YAZDIRMA AYARLARI (TAM ÇÖZÜM)               */
 /* ================================================= */
 @media print {
-    /* 1. GENEL SAYFA AYARLARI */
-    @page {
-        size: auto;
-        margin: 5mm;
-    }
-    
-    /* Sayfa Yönlendirmeleri */
-    @page landscape-page { size: landscape; margin: 5mm; }
-    @page portrait-page { size: portrait; margin: 10mm; }
-
-    /* Tarayıcı varsayılanlarını sıfırla - Sayfa akışını serbest bırak */
-    html, body {
-        width: 100%;
-        height: auto !important;
-        overflow: visible !important;
-        background-color: white !important;
+    /* 1. KAPSAYICI SIFIRLAMA (Çoklu Sayfa Sorunu İçin KRİTİK) */
+    html, body, .main-app, .main-content-wrapper, .content {
+        /* Sayfanın uzamasına izin ver (Auto) ama en az %100 olsun */
+        height: auto !important; 
+        min-height: 100% !important;
+        width: 100% !important;
+        
         margin: 0 !important;
         padding: 0 !important;
+        
+        /* Kesilmeleri önlemek için görünürlüğü aç */
+        overflow: visible !important; 
+        display: block !important;
+        position: static !important;
+        background-color: white !important;
+
+        /* Renkleri Koru */
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -551,111 +550,125 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
         visibility: hidden;
     }
 
+    /* Arayüz Elemanlarını Yok Et */
+    .sidebar, .login-container, .modal, .logo-box, .form-grid, 
+    button, select, .modern-filter-card, .page-header, 
+    .logout, .action-buttons, #mobile-menu-btn,
+    .page-view > h2 { 
+        display: none !important;
+    }
+
     /* ================================================= */
-    /* DURUM 1: SORU BANKASI GELİŞİM RAPORU & HATA KARNESİ */
+    /* SENARYO A: ÇOK SAYFALI RAPOR (Soru Bankası / Karne) */
     /* ================================================= */
-    .report-printable-a4, .report-printable-a4 * {
+    /* Rapor Varsa Bu Kurallar Geçerli */
+    
+    .report-printable-a4, 
+    .report-printable-a4 * {
         visibility: visible !important;
     }
 
     .report-printable-a4 {
-        page: portrait-page;        /* Dikey Kağıt */
-        display: block !important;
-        position: relative !important; /* Absolute YERİNE Relative (Çoklu sayfa için şart) */
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important; /* İçeriğin taşmasına izin ver */
-        
-        /* Çakışma Önleyici Ayarlar */
-        background-color: white !important; /* Arkadaki diğer sayfaları kapat */
-        z-index: 9999 !important;           /* En üste çıkar */
-        left: 0 !important;
-        top: 0 !important;
-        margin: 0 auto !important;
-        
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    /* Tablo ve Satırların Sayfa Ortasında Kesilmesini Önle */
-    .report-printable-a4 table, 
-    .report-printable-a4 tr, 
-    .report-printable-a4 .bar-item,
-    .report-printable-a4 .chart-box {
-        page-break-inside: avoid !important;
-    }
-    
-    .report-printable-a4 h2 {
-        display: block !important; /* Başlıkları geri getir */
-    }
-
-    /* ================================================= */
-    /* DURUM 2: GÜNLÜK TAKİP ÇİZELGESİ (Yatay)           */
-    /* ================================================= */
-    #daily-tracking-view {
-        /* Sadece bu view aktifse ve rapor yoksa çalışır */
-        page: landscape-page;
-    }
-    
-    /* Günlük Takip Görünürlük Ayarı */
-    /* Eğer rapor class'ı sayfada yoksa veya gizliyse Günlük Takibi göster */
-    #daily-tracking-view:not(.hidden) {
-        position: absolute;
+        position: relative !important; /* Absolute DEĞİL, akışa uysun */
         left: 0;
         top: 0;
-        width: 100%;
-        visibility: visible !important;
+        width: 100% !important;
+        margin: 0 !important;
+        z-index: 9999;
         display: block !important;
     }
 
-    #daily-tracking-view * {
-        visibility: visible;
+    /* Tabloların ve grafiklerin sayfa ortasında kesilmesini önle */
+    .report-printable-a4 tr,
+    .report-printable-a4 .chart-box,
+    .report-printable-a4 .bar-item {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
-    /* Günlük takipteki filtre kutusunu gizle */
-    #daily-tracking-view .card {
+    /* Rapor varken Günlük Takip Çizelgesini DOM'dan sil */
+    body:has(.report-printable-a4) #daily-tracking-view {
         display: none !important;
     }
-    
-    /* Grid yapısını koru */
-    #weekly-grid-container {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 4px !important;
+
+    /* ================================================= */
+    /* SENARYO B: GÜNLÜK TAKİP ÇİZELGESİ                 */
+    /* ================================================= */
+    /* Rapor YOKSA Bu Kurallar Geçerli */
+
+    @page {
+        size: auto;   /* Kullanıcı Yatay/Dikey seçebilir */
+        margin: 5mm;
+    }
+
+    body:not(:has(.report-printable-a4)) #daily-tracking-view {
+        visibility: visible !important;
+        display: block !important;
+        /* Günlük takip tek sayfa olduğu için absolute kalabilir */
+        position: absolute !important; 
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: white !important;
+    }
+
+    /* İçindeki gerekli elemanları görünür yap */
+    body:not(:has(.report-printable-a4)) #daily-tracking-view *,
+    body:not(:has(.report-printable-a4)) #weekly-grid-container,
+    body:not(:has(.report-printable-a4)) #dt-print-header {
         visibility: visible !important;
     }
 
-    /* Günlük Takip Başlığı */
+    /* İstenmeyen başlık ve kutuları gizle (Sizin işaretlediğiniz yerler) */
+    body:not(:has(.report-printable-a4)) #daily-tracking-view > h2,
+    body:not(:has(.report-printable-a4)) #daily-tracking-view > .card {
+        display: none !important;
+    }
+
+    /* Scrollbar'ı yok et */
+    body:not(:has(.report-printable-a4)) #weekly-grid-container {
+        overflow: visible !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
+        gap: 4px !important;
+        padding-top: 5px !important;
+    }
+
+    /* --- GÜNLÜK TAKİP DETAY STİLLERİ --- */
+    .day-card {
+        flex: 1 !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        background: white !important;
+        box-shadow: none !important;
+        overflow: hidden !important; 
+    }
+
+    .day-header { padding: 5px !important; color: white !important; border-radius: 6px 6px 0 0 !important; }
+    .day-name { font-size: 0.9rem !important; font-weight: 800 !important; }
+    .day-date { font-size: 0.7rem !important; }
+    .day-body { padding: 5px !important; gap: 5px !important; }
+    .section-label { font-size: 0.65rem !important; color: #64748b !important; font-weight: 700 !important; border-bottom: 1px solid #eee !important; }
+    
+    .subject-check-group { gap: 2px !important; }
+    .subject-label { font-size: 0.7rem !important; margin: 0 !important; color: #334155 !important; }
+    .subject-label input { width: 12px !important; height: 12px !important; }
+    
+    .homework-group { gap: 4px !important; margin: 0 !important; }
+    .radio-label { font-size: 0.7rem !important; color: #334155 !important; }
+    
+    .small-input { border: 1px solid #cbd5e1 !important; border-radius: 4px !important; font-size: 0.8rem !important; height: auto !important; padding: 2px !important; background: white !important; font-weight: bold !important; color: #333 !important; }
+    .inp-not { border: 1px solid #e2e8f0 !important; height: 25px !important; font-size: 0.75rem !important; }
+
     #dt-print-header {
         display: block !important;
-        visibility: visible !important;
-        border-bottom: 2px solid #333;
-        margin-bottom: 10px;
+        text-align: center !important;
+        margin-bottom: 10px !important;
+        border-bottom: 2px solid #334155 !important;
     }
-    #dt-print-header * { visibility: visible !important; }
-
-    /* ================================================= */
-    /* ORTAK GİZLENECEK ALANLAR                          */
-    /* ================================================= */
-    .sidebar, 
-    .login-container, 
-    .modal, 
-    .logo-box, 
-    .form-grid, 
-    button, 
-    select, 
-    .modern-filter-card, 
-    .page-header,
-    .logout,
-    .action-buttons { 
-        display: none !important;
-    }
-
-    /* Renk Ayarlarını Koru */
-    .bar-fill, .day-header, .konu-hata-sebebi {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+    #dt-print-header h1 { font-size: 1.5rem !important; color: #1e293b !important; margin: 0 !important; }
+    #dt-print-header p { font-size: 0.9rem !important; color: #475569 !important; margin: 5px 0 0 0 !important; }
 }
 
 
@@ -823,6 +836,31 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
     .form-grid, .filter-grid {
         grid-template-columns: 1fr !important;
     }
+}
+/* ================================================= */
+/* SORU SAYISI KUTUSU DÜZELTMESİ (GENİŞLETME)        */
+/* ================================================= */
+
+.konu-sorusayisi-input {
+    min-width: 60px !important; /* Kutuyu en az 60px genişliğe zorla */
+    padding-right: 5px !important; /* Sağdan boşluğu azalt */
+    padding-left: 5px !important;  /* Soldan boşluğu azalt */
+    font-size: 1.1rem !important;  /* Rakamı biraz büyüt */
+    text-align: center !important; /* Rakamı tam ortala */
+    font-weight: 800 !important;   /* Kalın yap */
+}
+
+/* İsterseniz okları (yukarı/aşağı tuşlarını) kaldırmak için şu kodu da ekleyebilirsiniz */
+/* Oklar kalkarsa rakam için daha çok yer açılır */
+/* Chrome, Safari, Edge, Opera */
+input.konu-sorusayisi-input::-webkit-outer-spin-button,
+input.konu-sorusayisi-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input.konu-sorusayisi-input[type=number] {
+  -moz-appearance: textfield;
 }
     </style> 
 
@@ -4470,19 +4508,19 @@ window.generateLGSBelgesi = async function() {
                 
                 <div style="flex:1.2; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
-                        <div style="color:var(--success-color); font-weight:bold; font-size:1.3rem;">${genelDogru}</div>
+                        <div style="color:var(--success-color); font-weight:bold; font-size:2.2rem;">${genelDogru}</div>
                         <div style="font-size:0.8rem; color:#64748b;">Doğru</div>
                     </div>
                     <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
-                        <div style="color:var(--danger-color); font-weight:bold; font-size:1.3rem;">${genelYanlis}</div>
+                        <div style="color:var(--danger-color); font-weight:bold; font-size:2.2rem;">${genelYanlis}</div>
                         <div style="font-size:0.8rem; color:#64748b;">Yanlış</div>
                     </div>
                     <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
-                        <div style="color:#f59e0b; font-weight:bold; font-size:1.3rem;">${genelBos}</div>
+                        <div style="color:#f59e0b; font-weight:bold; font-size:2.2rem;">${genelBos}</div>
                         <div style="font-size:0.8rem; color:#64748b;">Boş</div>
                     </div>
                     <div style="background:#eff6ff; border:1px solid #dbeafe; border-radius:8px; padding:10px; text-align:center;">
-                        <div style="color:#1e40af; font-weight:bold; font-size:1.3rem;">${genelNet.toFixed(2)}</div>
+                        <div style="color:#1e40af; font-weight:bold; font-size:2.2rem;">${genelNet.toFixed(2)}</div>
                         <div style="font-size:0.8rem; color:#64748b;">Toplam Net</div>
                     </div>
                 </div>
