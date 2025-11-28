@@ -289,125 +289,7 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
     color: var(--theme-color);
     border-bottom-color: var(--theme-color);
 }
-/* ================================================= */
-/* FİNAL YAZDIRMA AYARLARI (YATAY & TAM SIĞDIRMA)    */
-/* ================================================= */
-@media print {
-    /* 1. KAĞIT YÖNÜNÜ YATAY (LANDSCAPE) YAP */
-    @page {
-        size: landscape;
-        margin: 5mm; /* Kenar boşluklarını daralt */
-    }
 
-    /* 2. HER ŞEYİ GİZLE */
-    body * {
-        visibility: hidden;
-    }
-
-    /* 3. SADECE GÜNLÜK TAKİP VE ONUN İÇERİĞİNİ GÖSTER */
-    #daily-tracking-view, 
-    #daily-tracking-view * {
-        visibility: visible;
-    }
-
-    /* Ana kapsayıcıyı sayfanın en başına sabitle */
-    #daily-tracking-view {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* --- GİZLENECEK ÖZEL ALANLAR --- */
-    /* Butonlar, Menü, Başlıklar, Filtreler vb. baskıda çıkmasın */
-    .sidebar, 
-    .login-container, 
-    .modal, 
-    .logo-box, 
-    .form-grid, 
-    button, 
-    select, 
-    .modern-filter-card, 
-    .page-header,
-    .logout,
-    h2 { /* Sayfa başlığını da gizliyoruz, yerine print header gelecek */
-        display: none !important;
-    }
-
-    /* --- YAZDIRMA BAŞLIĞI (Sadece Çıktıda Görünür) --- */
-    #dt-print-header {
-        display: block !important;
-        visibility: visible !important;
-        text-align: center;
-        margin-bottom: 10px;
-        border-bottom: 2px solid #333;
-        padding-bottom: 5px;
-    }
-    #dt-print-header * {
-        visibility: visible !important;
-    }
-
-    /* --- HAFTALIK IZGARA AYARI (7 GÜN YAN YANA) --- */
-    #weekly-grid-container {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important; /* 7 Eşit Sütun */
-        gap: 4px !important;
-        width: 100% !important;
-        margin-top: 5px;
-        padding-bottom: 0 !important;
-        overflow: visible !important;
-    }
-
-    /* --- KART TASARIMI (BASKI İÇİN SADELEŞTİRME) --- */
-    .day-card {
-        border: 1px solid #333 !important; /* Siyah çerçeve */
-        box-shadow: none !important;
-        border-radius: 4px !important;
-        page-break-inside: avoid; /* Kartın ortadan bölünmesini engelle */
-        min-height: 450px; /* Kağıdı doldurması için yükseklik */
-    }
-    
-    .day-header {
-        background-color: #ddd !important; /* Başlıklar gri olsun (Renkli mürekkep tasarrufu) */
-        color: #000 !important;
-        border-bottom: 1px solid #333 !important;
-        -webkit-print-color-adjust: exact; /* Renkleri zorla bas */
-        print-color-adjust: exact;
-    }
-
-    /* Yazı Boyutlarını Baskı İçin Küçült */
-    .day-name { font-size: 0.9rem !important; }
-    .day-date { font-size: 0.7rem !important; }
-    .section-label { font-size: 0.7rem !important; font-weight: bold !important; color: #000 !important; }
-    .subject-label { font-size: 0.75rem !important; color: #000 !important; }
-    
-    /* Checkbox ve Inputlar */
-    input[type="checkbox"], input[type="radio"] {
-        border: 1px solid #000 !important;
-    }
-    
-    /* Sayı ve Not Giriş Alanlarının Çerçevelerini Kaldır (Temiz Görünüm) */
-    .day-card input[type="text"], 
-    .day-card input[type="number"] { 
-        border: none !important; 
-        border-bottom: 1px dashed #ccc !important; /* Altı çizgili olsun */
-        background: transparent !important; 
-        padding: 0 !important;
-        height: auto !important;
-        color: #000 !important;
-        font-weight: bold !important;
-    }
-
-    /* --- SIĞDIRMA SİHRİ --- */
-    /* Eğer içerik taşarsa hafifçe küçültüp sayfaya oturtur */
-    body {
-        transform: scale(0.95);
-        transform-origin: top left;
-        width: 105%; /* Genişliği dengelemek için */
-    }
-}
 
 /* Başlık (Ortala) */
 .modal-content h2 {
@@ -417,6 +299,7 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
     margin-top: 0;
     color: var(--text-main);
 }
+
 
 /* Kapatma Butonu (Sağ Üst Köşeye Sabitle) */
 .modal-close {
@@ -636,6 +519,145 @@ input:focus, select:focus { outline: none; border-color: var(--theme-color); box
 .clean-table tr:last-child td {
     border-bottom: none;
 }
+
+/* ================================================= */
+/* FİNAL YAZDIRMA AYARLARI (ÇOKLU SAYFA VE ÇAKIŞMA ÇÖZÜMÜ) */
+/* ================================================= */
+@media print {
+    /* 1. GENEL SAYFA AYARLARI */
+    @page {
+        size: auto;
+        margin: 5mm;
+    }
+    
+    /* Sayfa Yönlendirmeleri */
+    @page landscape-page { size: landscape; margin: 5mm; }
+    @page portrait-page { size: portrait; margin: 10mm; }
+
+    /* Tarayıcı varsayılanlarını sıfırla - Sayfa akışını serbest bırak */
+    html, body {
+        width: 100%;
+        height: auto !important;
+        overflow: visible !important;
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 2. HER ŞEYİ GİZLE (Varsayılan) */
+    body * {
+        visibility: hidden;
+    }
+
+    /* ================================================= */
+    /* DURUM 1: SORU BANKASI GELİŞİM RAPORU & HATA KARNESİ */
+    /* ================================================= */
+    .report-printable-a4, .report-printable-a4 * {
+        visibility: visible !important;
+    }
+
+    .report-printable-a4 {
+        page: portrait-page;        /* Dikey Kağıt */
+        display: block !important;
+        position: relative !important; /* Absolute YERİNE Relative (Çoklu sayfa için şart) */
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important; /* İçeriğin taşmasına izin ver */
+        
+        /* Çakışma Önleyici Ayarlar */
+        background-color: white !important; /* Arkadaki diğer sayfaları kapat */
+        z-index: 9999 !important;           /* En üste çıkar */
+        left: 0 !important;
+        top: 0 !important;
+        margin: 0 auto !important;
+        
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Tablo ve Satırların Sayfa Ortasında Kesilmesini Önle */
+    .report-printable-a4 table, 
+    .report-printable-a4 tr, 
+    .report-printable-a4 .bar-item,
+    .report-printable-a4 .chart-box {
+        page-break-inside: avoid !important;
+    }
+    
+    .report-printable-a4 h2 {
+        display: block !important; /* Başlıkları geri getir */
+    }
+
+    /* ================================================= */
+    /* DURUM 2: GÜNLÜK TAKİP ÇİZELGESİ (Yatay)           */
+    /* ================================================= */
+    #daily-tracking-view {
+        /* Sadece bu view aktifse ve rapor yoksa çalışır */
+        page: landscape-page;
+    }
+    
+    /* Günlük Takip Görünürlük Ayarı */
+    /* Eğer rapor class'ı sayfada yoksa veya gizliyse Günlük Takibi göster */
+    #daily-tracking-view:not(.hidden) {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        visibility: visible !important;
+        display: block !important;
+    }
+
+    #daily-tracking-view * {
+        visibility: visible;
+    }
+
+    /* Günlük takipteki filtre kutusunu gizle */
+    #daily-tracking-view .card {
+        display: none !important;
+    }
+    
+    /* Grid yapısını koru */
+    #weekly-grid-container {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 4px !important;
+        visibility: visible !important;
+    }
+
+    /* Günlük Takip Başlığı */
+    #dt-print-header {
+        display: block !important;
+        visibility: visible !important;
+        border-bottom: 2px solid #333;
+        margin-bottom: 10px;
+    }
+    #dt-print-header * { visibility: visible !important; }
+
+    /* ================================================= */
+    /* ORTAK GİZLENECEK ALANLAR                          */
+    /* ================================================= */
+    .sidebar, 
+    .login-container, 
+    .modal, 
+    .logo-box, 
+    .form-grid, 
+    button, 
+    select, 
+    .modern-filter-card, 
+    .page-header,
+    .logout,
+    .action-buttons { 
+        display: none !important;
+    }
+
+    /* Renk Ayarlarını Koru */
+    .bar-fill, .day-header, .konu-hata-sebebi {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
 
 /* YAZDIRMA AYARLARI (Print) */
 @media print {
