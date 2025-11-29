@@ -963,6 +963,28 @@ input.konu-sorusayisi-input[type=number] {
     max-height: 400px;
     overflow-y: auto;
 }
+/* Logo Ayarları */
+.app-logo {
+    height: 55px;       /* Logonun yüksekliğini sabitler (İsteğe göre artırın: 60px, 70px) */
+    width: auto;        /* Genişliği otomatik ayarlar (resim uzamaz/basıklaşmaz) */
+    max-width: 150px;   /* Çok geniş logo yüklenirse menüden taşmasını engeller */
+    object-fit: contain;/* Resmi kutuya sığdırır */
+    display: block;
+}
+/* --- ALT MENÜ (SUBMENU) DİNAMİK İKONLARI --- */
+.submenu-icon {
+    font-size: 1.1rem;        /* İkon boyutu (Ana menüden biraz küçük) */
+    width: 24px;              /* Hizalama genişliği */
+    text-align: center;       /* Ortala */
+    margin-right: 10px;       /* Yazı ile mesafe */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Yaylanma efekti */
+}
+
+/* Linkin üzerine gelince ikon hareket etsin */
+.submenu li a:hover .submenu-icon {
+    transform: scale(1.3) rotate(-8deg); /* Büyü ve hafif dön */
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); /* Gölge ekle */
+}
     </style> 
 
 
@@ -1004,108 +1026,172 @@ input.konu-sorusayisi-input[type=number] {
     <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" style="display:none;">
         <i class="fa-solid fa-bars"></i>
     </button>
-    <div class="sidebar">
-   <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 5px;">
-    <img src="logo.jpg" alt="NetKoç Logo" style="height: 50px; width: auto; object-fit: contain;">
-    
-    <div>
-        <h2 style="margin: 0; font-size: 1.1rem; color: #0f172a; border: none; padding: 0;">Öğretmen Paneli</h2>
-        <small style="color:#94a3b8; font-size:0.8rem;">V2.0</small>
+<div class="sidebar">
+    <div class="netkoc-logo-container">
+        <div class="logo-circle">
+            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <path class="icon-path-dark-blue" d="M12 52C12 52 20 36 36 28C52 20 52 4 52 4" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="icon-path-light-blue" d="M38 16L52 4L40 2" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="icon-path-accent" d="M52 4L56 16L44 14L52 4Z" fill="currentColor"/>
+                <circle class="icon-path-accent" cx="16" cy="48" r="3" />
+            </svg>
+        </div>
+        <span class="brand-name">NetKoç</span>
     </div>
-</div>
 
     <ul class="sidebar-menu">
         <li data-view="dashboard-view">
             <a href="#" onclick="showView('dashboard-view')">
-                <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="menu-icon" alt="Ana Sayfa">
+                <i class="fa-solid fa-house menu-icon-fa" style="color: #3b82f6;"></i>
                 <span>Ana Sayfa</span>
             </a>
         </li>
         
-        <li class="has-submenu" data-view="student-list-view"> <a href="#" onclick="toggleSubmenu(event)">
-                <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" class="menu-icon" alt="Öğrenci">
+        <li class="has-submenu" data-view="student-list-view"> 
+            <a href="#" onclick="toggleSubmenu(event)">
+                <i class="fa-solid fa-user-graduate menu-icon-fa" style="color: #6366f1;"></i>
                 <span>Öğrenci Yönetimi</span>
             </a>
             <ul class="submenu">
-                <li><a href="#" onclick="openAddStudentModal()"><img src="https://cdn-icons-png.flaticon.com/512/3001/3001764.png" class="menu-icon-small"><span>Öğrenci Ekle</span></a></li>
-                <li data-view="student-list-view"><a href="#" onclick="showView('student-list-view')"><img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" class="menu-icon-small"><span>Öğrenci Listesi</span></a></li>
+                <li><a href="#" onclick="openAddStudentModal()"><i class="fa-solid fa-plus menu-icon-small-fa"></i><span>Öğrenci Ekle</span></a></li>
+                <li data-view="student-list-view"><a href="#" onclick="showView('student-list-view')"><i class="fa-solid fa-list-ul menu-icon-small-fa"></i><span>Öğrenci Listesi</span></a></li>
             </ul>
         </li>
         
         <li data-view="exams-view">
             <a href="#" onclick="showView('exams-view')">
-                <img src="https://cdn-icons-png.flaticon.com/512/2995/2995459.png" class="menu-icon" alt="Sınav">
+                <i class="fa-solid fa-file-signature menu-icon-fa" style="color: #8b5cf6;"></i>
                 <span>Deneme Sınavları</span>
             </a>
         </li>
         
         <li class="has-submenu" data-view="soru-bankasi-view">
             <a href="#" onclick="toggleSubmenu(event)">
-                <img src="https://cdn-icons-png.flaticon.com/512/3330/3330314.png" class="menu-icon" alt="Kitap">
+                <i class="fa-solid fa-book-open menu-icon-fa" style="color: #f59e0b;"></i>
                 <span>Soru Bankası</span>
             </a>
             <ul class="submenu">
-                <li data-view="soru-bankasi-view"><a href="#" onclick="showView('soru-bankasi-view')"><img src="https://cdn-icons-png.flaticon.com/512/2921/2921226.png" class="menu-icon-small"><span>Banka Listesi</span></a></li>
-                <li data-view="soru-bankasi-giris-view"><a href="#" onclick="showView('soru-bankasi-giris-view')"><img src="https://cdn-icons-png.flaticon.com/512/1001/1001371.png" class="menu-icon-small"><span>Sonuç Girişi</span></a></li>
+                <li data-view="soru-bankasi-view"><a href="#" onclick="showView('soru-bankasi-view')"><i class="fa-solid fa-book menu-icon-small-fa"></i><span>Banka Listesi</span></a></li>
+                <li data-view="soru-bankasi-giris-view"><a href="#" onclick="showView('soru-bankasi-giris-view')"><i class="fa-solid fa-pen-to-square menu-icon-small-fa"></i><span>Sonuç Girişi</span></a></li>
             </ul>
         </li>
         
-       <li class="has-submenu">
-    <a href="#" onclick="toggleSubmenu(event)">
-        <img src="https://cdn-icons-png.flaticon.com/512/2936/2936690.png" class="menu-icon" alt="Raporlar">
-        <span>Raporlar</span>
-    </a>
-    <ul class="submenu">
-        <li data-view="reports-view">
-            <a href="#" onclick="showView('reports-view')">
-                <img src="https://cdn-icons-png.flaticon.com/512/2995/2995459.png" class="menu-icon-small" alt="Deneme">
-                <span>Deneme Karnesi</span>
+        <li class="has-submenu">
+            <a href="#" onclick="toggleSubmenu(event)">
+                <i class="fa-solid fa-chart-pie menu-icon-fa" style="color: #14b8a6;"></i>
+                <span>Raporlar</span>
             </a>
+            <ul class="submenu">
+                <li data-view="reports-view">
+                    <a href="#" onclick="showView('reports-view')">
+                        <i class="fa-solid fa-chart-line menu-icon-small-fa"></i>
+                        <span>Deneme Karnesi</span>
+                    </a>
+                </li>
+                <li data-view="sb-reports-view">
+                    <a href="#" onclick="showView('sb-reports-view')">
+                        <i class="fa-solid fa-chart-column menu-icon-small-fa"></i>
+                        <span>Soru Bankası Karnesi</span>
+                    </a>
+                </li>
+                <li data-view="exam-result-view">
+                    <a href="#" onclick="showView('exam-result-view')">
+                        <i class="fa-solid fa-award menu-icon-small-fa"></i>
+                        <span>Sınav Sonuç Belgesi</span>
+                    </a>
+                </li>
+            </ul>
         </li>
-        
-        <li data-view="sb-reports-view">
-            <a href="#" onclick="showView('sb-reports-view')">
-                <img src="https://cdn-icons-png.flaticon.com/512/2838/2838779.png" class="menu-icon-small" alt="Soru Bankası">
-                <span>Soru Bankası Karnesi</span>
-            </a>
-        </li>
-        <li data-view="exam-result-view">
-            <a href="#" onclick="showView('exam-result-view')">
-                <i class="fa-solid fa-award" style="margin-right:10px; width:18px; text-align:center;"></i>
-                <span>Sınav Sonuç Belgesi</span>
-            </a>
-        </li>
-        </ul>
-</li>
-    
 
         <li data-view="daily-tracking-view">
             <a href="#" onclick="showView('daily-tracking-view')">
-                <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" class="menu-icon" alt="Takip">
+                <i class="fa-solid fa-calendar-check menu-icon-fa" style="color: #f43f5e;"></i>
                 <span>Günlük Takip</span>
             </a>
         </li>
+
         <li data-view="settings-view">
             <a href="#" onclick="showView('settings-view')">
-                <i class="fa-solid fa-gear" style="margin-right:15px; width:28px; text-align:center;"></i>
+                <i class="fa-solid fa-gears menu-icon-fa" style="color: #64748b;"></i>
                 <span>Ayarlar</span>
             </a>
         </li>
 
         <li class="logout">
             <a href="#" onclick="handleLogout()">
-                <img src="https://cdn-icons-png.flaticon.com/512/3580/3580235.png" class="menu-icon" alt="Çıkış">
+                <i class="fa-solid fa-right-from-bracket menu-icon-fa" style="color: #ef4444;"></i>
                 <span style="color: #ef4444;">Çıkış Yap</span>
             </a>
         </li>
     </ul>
 </div>
+ 
          <div class="main-content-wrapper">
     <div class="content">
             <div id="dashboard-view" class="page-view">
-                <h2>Ana Sayfa</h2>
-                <p>Öğrenci Takip Sistemi'ne hoş geldiniz! Sol menüden işlem yapabilirsiniz.</p>
+    <h2><i class="fa-solid fa-gauge-high"></i> Genel Durum Paneli</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px;">
+        
+        <div class="card" style="border-left: 5px solid #3b82f6; display:flex; align-items:center; gap:20px;">
+            <div style="background:#eff6ff; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#3b82f6; font-size:1.5rem;">
+                <i class="fa-solid fa-users"></i>
             </div>
+            <div>
+                <div style="font-size:0.9rem; color:#64748b; font-weight:600;">Toplam Öğrenci</div>
+                <div id="dash-total-student" style="font-size:1.8rem; font-weight:800; color:#1e293b;">...</div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 5px solid #f59e0b; display:flex; align-items:center; gap:20px;">
+            <div style="background:#fffbeb; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:1.5rem;">
+                <i class="fa-solid fa-book"></i>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; color:#64748b; font-weight:600;">Kayıtlı Kitap</div>
+                <div id="dash-total-books" style="font-size:1.8rem; font-weight:800; color:#1e293b;">...</div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 5px solid #8b5cf6; display:flex; align-items:center; gap:20px;">
+            <div style="background:#f5f3ff; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#8b5cf6; font-size:1.5rem;">
+                <i class="fa-solid fa-file-pen"></i>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; color:#64748b; font-weight:600;">Deneme Sınavı</div>
+                <div id="dash-total-exams" style="font-size:1.8rem; font-weight:800; color:#1e293b;">...</div>
+            </div>
+        </div>
+
+         <div class="card" style="border-left: 5px solid #10b981; display:flex; align-items:center; gap:20px;">
+            <div style="background:#ecfdf5; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.5rem;">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div>
+                <div style="font-size:0.9rem; color:#64748b; font-weight:600;">Aktif Hedef</div>
+                <div style="font-size:1.2rem; font-weight:800; color:#1e293b;">LGS 2025</div>
+            </div>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #334155;">Hızlı İşlemler</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+        <button onclick="showView('daily-tracking-view')" style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s;">
+            <i class="fa-solid fa-calendar-check" style="font-size: 2rem; color: #f43f5e;"></i>
+            <span style="font-weight: 600; color: #475569;">Günlük Takip Gir</span>
+        </button>
+
+        <button onclick="openAddStudentModal()" style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s;">
+            <i class="fa-solid fa-user-plus" style="font-size: 2rem; color: #3b82f6;"></i>
+            <span style="font-weight: 600; color: #475569;">Öğrenci Ekle</span>
+        </button>
+
+        <button onclick="showView('reports-view')" style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s;">
+            <i class="fa-solid fa-chart-pie" style="font-size: 2rem; color: #14b8a6;"></i>
+            <span style="font-weight: 600; color: #475569;">Raporları İncele</span>
+        </button>
+    </div>
+</div>
 
             <div id="student-list-view" class="page-view">
                 <h2>Kayıtlı Öğrenci Listesi</h2>
@@ -2056,6 +2142,109 @@ html, body {
     background: linear-gradient(135deg, #f43f5e, #e11d48);
     color: white;
 }
+/* Logo Kapsayıcısı - Ortalar ve düzenler */
+.netkoc-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0; /* Üstten ve alttan biraz boşluk */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Menü fontuna uygun */
+}
+
+/* Mavi Dış Halka (Görseldeki gibi) */
+.logo-circle {
+    width: 80px;
+    height: 80px;
+    border: 3px solid #0056b3; /* Mevcut temanıza uygun koyu mavi çerçeve */
+    border-radius: 50%; /* Tam daire yapar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff; /* İçini beyaz yapar */
+    margin-bottom: 10px; /* İsim ile ikon arası boşluk */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Hafif bir gölge ekler, modern durur */
+}
+
+/* SVG İkon Boyutu */
+.logo-icon {
+    width: 50px;
+    height: 50px;
+}
+
+/* İkon Renkleri */
+.logo-icon .icon-path-dark-blue {
+    stroke: #004a99; /* Yolun koyu mavi kısmı */
+}
+
+.logo-icon .icon-path-light-blue {
+    stroke: #00a8ff; /* Ok ucunun parlak mavi kısmı */
+}
+
+.logo-icon .icon-path-accent {
+    fill: #ffc107; /* Başarı yıldızı için altın sarısı/turuncu vurgu */
+    stroke: none;
+}
+
+/* Marka İsmi Stili */
+.brand-name {
+    font-size: 24px;
+    font-weight: 700; /* Kalın yazı */
+    color: #333333; /* Koyu gri metin rengi */
+    letter-spacing: 0.5px;
+}
+/* --- DİNAMİK MENÜ İKONLARI --- */
+.menu-icon-fa {
+    font-size: 1.3rem;        /* İkon boyutu */
+    width: 35px;              /* Genişlik (Hizalama için) */
+    text-align: center;       /* Ortala */
+    margin-right: 10px;       /* Yazı ile mesafe */
+    transition: all 0.3s ease;/* Animasyon geçişi */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); /* Hafif gölge */
+}
+
+/* Menü üzerine gelince ikon büyüsün ve parlasın */
+.sidebar-menu li a:hover .menu-icon-fa {
+    transform: scale(1.2) rotate(5deg); /* Hafif büyü ve dön */
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+}
+
+/* Alt menü ikonları için ayar */
+.menu-icon-small-fa {
+    font-size: 1rem;
+    width: 20px;
+    margin-right: 10px;
+    color: #64748b; /* Alt menüler gri kalsın */
+}
+/* --- YENİ DİNAMİK MENÜ İKONLARI --- */
+.menu-icon-fa {
+    font-size: 1.4rem;        /* İkon boyutu */
+    width: 35px;              /* Genişlik (Hizalama için) */
+    text-align: center;       /* Ortala */
+    margin-right: 12px;       /* Yazı ile mesafe */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Yaylanma efekti */
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); /* Hafif gölge */
+}
+
+/* Menü üzerine gelince ikon büyüsün ve parlasın */
+.sidebar-menu li a:hover .menu-icon-fa {
+    transform: scale(1.25) rotate(-5deg); /* Büyü ve hafif dön */
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.6)); /* Parlama */
+}
+
+/* Alt menü ikonları */
+.menu-icon-small-fa {
+    font-size: 1rem;
+    width: 20px;
+    margin-right: 10px;
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.sidebar-menu li a:hover .menu-icon-small-fa {
+    color: var(--theme-color); /* Üzerine gelince tema rengini al */
+    transform: translateX(3px);
+}
 </style>
 
 
@@ -2338,7 +2527,44 @@ window.showView = function(viewId) {
     if (viewId === 'reports-view') initReportsView();
     if (viewId === 'sb-reports-view') initSoruBankasiRaporView();
     if (viewId === 'daily-tracking-view') initGunlukTakipView();
+    if (viewId === 'dashboard-view') initDashboard();
     if (viewId === 'settings-view') loadSettingsData();
+}
+// GÜNCELLENMİŞ DASHBOARD FONKSİYONU (GARANTİ ÇALIŞAN VERSİYON)
+window.initDashboard = async function() {
+    console.log("Dashboard yükleniyor...");
+
+    // Kullanıcı profili yoksa veya kurumId eksikse dur
+    if (!currentUserProfile || !currentUserProfile.kurumId) {
+        console.log("Profil veya Kurum ID eksik, bekleniyor...");
+        return;
+    }
+
+    try {
+        // 1. Öğrenci Sayısını Getir
+        const qStudents = query(collection(db, "ogrenciler"), where("kurumId", "==", currentUserProfile.kurumId));
+        const snapStudents = await getDocs(qStudents);
+        document.getElementById('dash-total-student').innerText = snapStudents.size; // .size komutu kesin çalışır
+
+        // 2. Kitap Sayısını Getir
+        const qBooks = query(collection(db, "soruBankalari"), where("kurumId", "==", currentUserProfile.kurumId));
+        const snapBooks = await getDocs(qBooks);
+        document.getElementById('dash-total-books').innerText = snapBooks.size;
+
+        // 3. Deneme Sınavı Sayısını Getir
+        const qExams = query(collection(db, "denemeSinavlari"), where("kurumId", "==", currentUserProfile.kurumId));
+        const snapExams = await getDocs(qExams);
+        document.getElementById('dash-total-exams').innerText = snapExams.size;
+
+        console.log("Veriler başarıyla panele yazıldı.");
+
+    } catch (error) {
+        console.error("Dashboard hatası:", error);
+        // Hata olsa bile ... yerine 0 yazalım ki ekran boş kalmasın
+        document.getElementById('dash-total-student').innerText = "0";
+        document.getElementById('dash-total-books').innerText = "0";
+        document.getElementById('dash-total-exams').innerText = "0";
+    }
 }
 
 
@@ -2578,10 +2804,13 @@ window.printSoruBankasiRaporu = function() {
 
 // BU SATIRDAN İTİBAREN YAPIŞTIRMAYA BAŞLAYIN
 
-        // Firebase SDK'larını import et (updateDoc ve deleteDoc dahil)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+        // SÜRÜMLERİ 9.6.10 YERİNE 10.7.1 YAPTIK ve getCountFromServer EKLİ
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, 
+    updateDoc, deleteDoc, setDoc, orderBy, limit, getCountFromServer 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // Firebase projenizin yapılandırma bilgileri
         const firebaseConfig = {
@@ -2619,6 +2848,9 @@ window.printSoruBankasiRaporu = function() {
                         loadSoruBankalari();
                         loadDenemeSinavlari(); // Düzeltme: Fonksiyon doğru yere eklendi
                         initSoruBankasiGiris();
+                        setTimeout(() => {
+                            if(window.initDashboard) window.initDashboard(); 
+                        }, 1000);
 
                     } else {
                          // Eğer rol öğretmen değilse veya başka bir durum varsa, güvenlik için çıkış yaptırılabilir.
